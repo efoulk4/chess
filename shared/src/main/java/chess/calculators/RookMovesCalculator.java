@@ -12,14 +12,11 @@ public class RookMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> legalMoves = new ArrayList<>();
-        int[] directions = {-1, 1};
-        int[] runs = {0, 1};
-        for (int i : directions){
-            for(int j : runs) {
+        int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0,-1}};
+        for (int[] dir : directions){
                 ChessPosition curPos = myPosition;
                 while (true) {
-                    if (j == 0) {curPos = new ChessPosition(curPos.getRow() + i, curPos.getColumn());}
-                    else{curPos = new ChessPosition(curPos.getRow(), curPos.getColumn()+i);}
+                    curPos = new ChessPosition(curPos.getRow() + dir[0], curPos.getColumn() + dir[1]);
                     if (validateSlidingMove(myPosition, curPos, board)){
                         legalMoves.add(new ChessMove(myPosition,curPos,null));
                         if (board.getPiece(curPos) != null){break;}
@@ -27,7 +24,6 @@ public class RookMovesCalculator implements PieceMovesCalculator{
                     else {
                         break;
                     }
-                }
             }
         }
         return legalMoves;
