@@ -42,7 +42,25 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        throw new RuntimeException("Not implemented");
+        squares = new ChessPiece[8][8];
+
+        for (int i = 1; i < 9; i++) {
+            ChessPiece.PieceType type;
+            type = switch (i) {
+                case 1, 8 -> ChessPiece.PieceType.ROOK;
+                case 2, 7 -> ChessPiece.PieceType.KNIGHT;
+                case 3, 6 -> ChessPiece.PieceType.BISHOP;
+                case 4 -> ChessPiece.PieceType.QUEEN;
+                case 5 -> ChessPiece.PieceType.KING;
+                default -> throw new IllegalStateException("Unexpected value: " + i);
+            };
+            addPiece(new ChessPosition(2, i), new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN));
+            addPiece(new ChessPosition(7, i), new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN));
+
+            addPiece(new ChessPosition(1, i), new ChessPiece(ChessGame.TeamColor.WHITE, type));
+            addPiece(new ChessPosition(8, i), new ChessPiece(ChessGame.TeamColor.BLACK, type));
+        }
+
     }
 
     @Override
@@ -57,5 +75,12 @@ public class ChessBoard {
     @Override
     public int hashCode() {
         return Arrays.deepHashCode(squares);
+    }
+
+    @Override
+    public String toString() {
+        return "ChessBoard{" +
+                "squares=" + Arrays.deepToString(squares) +
+                '}';
     }
 }
