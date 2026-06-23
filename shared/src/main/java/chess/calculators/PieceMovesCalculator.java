@@ -9,7 +9,7 @@ import java.util.Collection;
 
 public interface PieceMovesCalculator {
     Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition);
-    default boolean validateSlidingMove (ChessPosition myPosition ,ChessPosition curPos, ChessBoard board){
+    default boolean validateMove(ChessPosition myPosition , ChessPosition curPos, ChessBoard board){
         if (curPos.getRow() < 1 || curPos.getColumn() < 1 || curPos.getRow() > 8 || curPos.getColumn() > 8) {
             return false;
         }

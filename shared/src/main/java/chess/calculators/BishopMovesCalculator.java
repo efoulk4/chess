@@ -6,7 +6,6 @@ import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class BishopMovesCalculator implements PieceMovesCalculator{
     @Override
@@ -17,7 +16,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator{
                 ChessPosition curPos = myPosition;
                 while (true) {
                     curPos = new ChessPosition(curPos.getRow() + direction[0], curPos.getColumn() + direction[1]);
-                    if (validateSlidingMove(myPosition, curPos, board)){
+                    if (validateMove(myPosition, curPos, board)){
                         legalMoves.add(new ChessMove(myPosition,curPos,null));
                         if (board.getPiece(curPos) != null){break;}
                     }
