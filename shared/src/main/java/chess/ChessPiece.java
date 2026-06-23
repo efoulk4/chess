@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +16,7 @@ public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
 
-    public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
+    public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
     }
@@ -55,10 +56,34 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         ChessPiece piece = board.getPiece((myPosition));
-        Collection<ChessMove> legalmoves;
-        if (piece.getPieceType() == PieceType.BISHOP) {
+        Collection<ChessMove> legalMoves = new ArrayList<>();
+        if (piece.getPieceType() == PieceType.BISHOP || piece.getPieceType() == PieceType.QUEEN) {
+            int[] directions = {-1, 1};
+            for (int i : directions){
+                for (int j : directions){
+                    ChessPosition curPos = myPosition;
+                    while (true){
+                        curPos = new ChessPosition(curPos.getRow()+i, curPos.getColumn()+j);
+                        if (curPos.getRow() < 1 || curPos.getColumn() <1 || curPos.getRow() > 8 || curPos.getColumn() >8) {
+                            break;
+                        }
+                        if (board.getPiece(curPos) == null){
+                            legalMoves.add(new ChessMove(myPosition,curPos,null));
+                        }
+                        else {
+                            if (board.getPiece(curPos).getTeamColor() != pieceColor){
+                                legalMoves.add(new ChessMove(myPosition,curPos,null));
+                                break;
+                            }
+                            else{
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
-        return List.of();
+        return legalMoves;
     }
     @Override
     public boolean equals(Object o) {
