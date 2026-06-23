@@ -12,12 +12,11 @@ public class BishopMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> legalMoves = new ArrayList<>();
-        int[] directions = {-1, 1};
-        for (int i : directions) {
-            for (int j : directions) {
+        int[][] directions = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+        for (int[] direction : directions) {
                 ChessPosition curPos = myPosition;
                 while (true) {
-                    curPos = new ChessPosition(curPos.getRow() + i, curPos.getColumn() + j);
+                    curPos = new ChessPosition(curPos.getRow() + direction[0], curPos.getColumn() + direction[1]);
                     if (validateSlidingMove(myPosition, curPos, board)){
                         legalMoves.add(new ChessMove(myPosition,curPos,null));
                         if (board.getPiece(curPos) != null){break;}
@@ -26,7 +25,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator{
                         break;
                     }
                 }
-            }
         }
         return legalMoves;
     }
