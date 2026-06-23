@@ -7,7 +7,7 @@ import chess.ChessPosition;
 import java.util.Collection;
 import java.util.List;
 
-public class KingMovesCalculators implements PieceMovesCalculator {
+public class KingMovesCalculator implements PieceMovesCalculator {
     @Override
     public Collection<ChessMove> CalculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
         return List.of();
