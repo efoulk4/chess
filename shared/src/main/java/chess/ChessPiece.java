@@ -3,7 +3,6 @@ package chess;
 import chess.calculators.*;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -78,7 +77,7 @@ public class ChessPiece {
                 calculator = new PawnMovesCalculator();
                 break;
         }
-        return calculator.CalculateLegalMoves(board, myPosition);
+        return calculator.calculateLegalMoves(board, myPosition);
     }
     @Override
     public boolean equals(Object o) {

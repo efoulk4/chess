@@ -8,7 +8,7 @@ import java.util.List;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
     @Override
-    public Collection<ChessMove> CalculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> legalMoves = new ArrayList<>();
         int dir = 1;
         boolean firstMove = false;

@@ -6,19 +6,18 @@ import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class QueenMovesCalculator implements PieceMovesCalculator{
     @Override
-    public Collection<ChessMove> CalculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> QueenMoves = new ArrayList<>();
+    public Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> queenMoves = new ArrayList<>();
 
         PieceMovesCalculator rookCalc = new RookMovesCalculator();
-        QueenMoves.addAll(rookCalc.CalculateLegalMoves(board,myPosition));
+        queenMoves.addAll(rookCalc.calculateLegalMoves(board,myPosition));
 
         PieceMovesCalculator bishopCalc = new BishopMovesCalculator();
-        QueenMoves.addAll(bishopCalc.CalculateLegalMoves(board,myPosition));
+        queenMoves.addAll(bishopCalc.calculateLegalMoves(board,myPosition));
 
-        return QueenMoves;
+        return queenMoves;
     }
 }

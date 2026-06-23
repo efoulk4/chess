@@ -10,7 +10,7 @@ import java.util.List;
 
 public class KnightMovesCalculator implements PieceMovesCalculator{
     @Override
-    public Collection<ChessMove> CalculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
+    public Collection<ChessMove> calculateLegalMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> legalMoves = new ArrayList<>();
         int[] shorts = {-1, 1};
         int[] longs = {-2, 2};
