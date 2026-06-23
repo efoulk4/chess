@@ -13,7 +13,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         int dir = 1;
         boolean firstMove = false;
         boolean promotesOnNextMove = false;
-        ChessPiece.PieceType[] promotionOptions = {ChessPiece.PieceType.QUEEN, ChessPiece.PieceType.ROOK, ChessPiece.PieceType.BISHOP, ChessPiece.PieceType.KNIGHT};
         if (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.BLACK){dir *= -1;}
         if (myPosition.getRow() == 7) {
             if (dir == -1){firstMove = true;}
@@ -37,14 +36,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 continue;
             }
             if (board.getPiece(curPos).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                if (promotesOnNextMove){
-                    for (ChessPiece.PieceType type : promotionOptions){
-                        legalMoves.add(new ChessMove(myPosition, curPos, type));
-                    }
-                }
-                else {
-                    legalMoves.add(new ChessMove(myPosition, curPos, null));
-                }
+                legalMoves = handlePromotion(legalMoves, myPosition, curPos, promotesOnNextMove);
             }
         }
         /*
@@ -60,14 +52,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 continue;
             }
             if (board.getPiece(curPos) == null) {
-                if (promotesOnNextMove){
-                    for (ChessPiece.PieceType type : promotionOptions){
-                        legalMoves.add(new ChessMove(myPosition, curPos, type));
-                    }
-                }
-                else {
-                    legalMoves.add(new ChessMove(myPosition, curPos, null));
-                }
+                legalMoves = handlePromotion(legalMoves, myPosition, curPos, promotesOnNextMove);
             } else {
                 break;
             }

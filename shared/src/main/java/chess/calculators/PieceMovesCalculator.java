@@ -2,6 +2,7 @@ package chess.calculators;
 
 import chess.ChessBoard;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.util.Collection;
@@ -17,5 +18,28 @@ public interface PieceMovesCalculator {
         } else {
             return board.getPiece(curPos).getTeamColor() != board.getPiece(myPosition).getTeamColor();
         }
+    }
+    default Collection<ChessMove> handlePromotion(
+            Collection<ChessMove> legalMoves,
+            ChessPosition myPosition,
+            ChessPosition curPos,
+            boolean promotesOnNextMove)
+
+    {
+        ChessPiece.PieceType[] promotionOptions = {
+                ChessPiece.PieceType.QUEEN,
+                ChessPiece.PieceType.ROOK,
+                ChessPiece.PieceType.BISHOP,
+                ChessPiece.PieceType.KNIGHT
+            };
+        if (promotesOnNextMove){
+            for (ChessPiece.PieceType type : promotionOptions){
+                legalMoves.add(new ChessMove(myPosition, curPos, type));
+            }
+        }
+        else {
+            legalMoves.add(new ChessMove(myPosition, curPos, null));
+        }
+        return legalMoves;
     }
 }
