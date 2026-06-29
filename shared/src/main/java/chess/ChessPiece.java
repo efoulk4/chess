@@ -56,27 +56,14 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        PieceMovesCalculator calculator = null;
-        switch (this.type){
-            case KING:
-                calculator = new KingMovesCalculator();
-                break;
-            case QUEEN:
-                calculator = new QueenMovesCalculator();
-                break;
-            case ROOK:
-                calculator = new RookMovesCalculator();
-                break;
-            case BISHOP:
-                calculator = new BishopMovesCalculator();
-                break;
-            case KNIGHT:
-                calculator = new KnightMovesCalculator();
-                break;
-            case PAWN:
-                calculator = new PawnMovesCalculator();
-                break;
-        }
+        PieceMoveCalculator calculator = switch (this.type) {
+            case KING -> new KingMoveCalculator();
+            case QUEEN -> new QueenMoveCalculator();
+            case ROOK -> new RookMoveCalculator();
+            case BISHOP -> new BishopMoveCalculator();
+            case KNIGHT -> new KnightMoveCalculator();
+            case PAWN -> new PawnMoveCalculator();
+        };
         return calculator.calculateLegalMoves(board, myPosition);
     }
     @Override
