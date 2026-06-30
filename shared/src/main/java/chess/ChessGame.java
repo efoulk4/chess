@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -10,6 +12,7 @@ import java.util.Collection;
  */
 public class ChessGame {
     ChessBoard board;
+    TeamColor teamTurn;
 
     public ChessGame() {
 
@@ -19,7 +22,7 @@ public class ChessGame {
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -28,7 +31,14 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
+    }
+
+    public TeamColor flipTeamColor(TeamColor team){
+        return switch (team) {
+            case WHITE -> TeamColor.BLACK;
+            case BLACK -> TeamColor.WHITE;
+        };
     }
 
     /**
@@ -82,6 +92,26 @@ public class ChessGame {
         }
         board.removePiece(move.getStartPosition());
         board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(),resultantPieceType));
+        teamTurn = flipTeamColor(teamTurn);
+    }
+
+    Collection<ChessPosition> attackedSquares(ChessBoard board, TeamColor team){
+        Collection<ChessPosition> attacked = new ArrayList<>();
+        ChessPosition curPos;
+        for (int row = 1; row < 9; row++){
+            for (int column = 1; column < 9; column++){
+                curPos = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(curPos);
+                if (piece == null||piece.getTeamColor() != team){
+                    continue;
+                }
+                for (ChessMove move : validMoves(curPos)){
+                    attacked.add(move.getEndPosition());
+                }
+            }
+
+        }
+        return attacked;
     }
 
     /**
@@ -91,7 +121,22 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition curPos = null;
+        ChessPosition kingPos = null;
+        for (int row = 1; row < 9; row++){
+            for (int column = 1; column < 9; column++) {
+                curPos = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(curPos);
+                if (piece == null||piece.getTeamColor() != teamColor){
+                    continue;
+                }
+                if (piece.getPieceType() == ChessPiece.PieceType.KING){
+                    kingPos = curPos;
+                    break;
+                }
+            }
+        }
+        return attackedSquares(board, flipTeamColor(teamColor)).contains(curPos);
     }
 
     /**
