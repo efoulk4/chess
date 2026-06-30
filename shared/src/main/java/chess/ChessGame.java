@@ -9,6 +9,7 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    ChessBoard board;
 
     public ChessGame() {
 
@@ -46,7 +47,17 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        if (board.getPiece(startPosition) == null){
+            return null;
+        }
+        else {
+            ChessPiece piece = board.getPiece(startPosition);
+            Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
+            return null;
+            /*
+            STILL TO BE IMPLEMENTED
+             */
+        }
     }
 
     /**
@@ -56,7 +67,21 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if (piece == null){
+            throw new InvalidMoveException();
+        }
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        if (!validMoves.contains(move)){
+            throw new InvalidMoveException();
+        }
+
+        ChessPiece.PieceType resultantPieceType = piece.getPieceType();
+        if (move.getPromotionPiece() != null){
+            resultantPieceType = move.getPromotionPiece();
+        }
+        board.removePiece(move.getStartPosition());
+        board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(),resultantPieceType));
     }
 
     /**
@@ -96,7 +121,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**
@@ -105,6 +130,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 }
