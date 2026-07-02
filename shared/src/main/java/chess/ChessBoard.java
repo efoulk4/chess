@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -14,6 +15,9 @@ public class ChessBoard {
     ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
         
+    }
+    public ChessBoard(ChessBoard board){
+        squares = Arrays.copyOf(board.squares, board.squares.length);
     }
 
     /**
