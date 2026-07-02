@@ -16,7 +16,9 @@ public class ChessGame {
     TeamColor teamTurn;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        board.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -65,7 +67,7 @@ public class ChessGame {
             ChessPiece piece = board.getPiece(startPosition);
             TeamColor team = piece.getTeamColor();
             Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
-            ChessBoard realBoard = board;
+            ChessBoard realBoard = getBoard();
             for (ChessMove move :  pieceMoves){
                 setBoard(new ChessBoard(realBoard));
                 board.removePiece(move.getStartPosition());
@@ -115,7 +117,8 @@ public class ChessGame {
                 if (piece == null||piece.getTeamColor() != team){
                     continue;
                 }
-                for (ChessMove move : validMoves(curPos)){
+                Collection<ChessMove> pieceMoves = piece.pieceMoves(board, curPos);
+                for (ChessMove move : pieceMoves){
                     attacked.add(move.getEndPosition());
                 }
             }
@@ -146,7 +149,8 @@ public class ChessGame {
                 }
             }
         }
-        return attackedSquares(board, flipTeamColor(teamColor)).contains(kingPos);
+        Collection<ChessPosition> attacked = attackedSquares(board, flipTeamColor(teamColor));
+        return attacked.contains(kingPos);
     }
 
     /**
@@ -224,9 +228,7 @@ public class ChessGame {
 
     @Override
     public String toString() {
-        return "ChessGame{" +
-                "board=" + board +
-                ", teamTurn=" + teamTurn +
-                '}';
+        return teamTurn + "to play\n" +
+                board;
     }
 }

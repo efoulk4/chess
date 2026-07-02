@@ -87,8 +87,31 @@ public class ChessBoard {
 
     @Override
     public String toString() {
-        return "ChessBoard{" +
-                "squares=" + Arrays.deepToString(squares) +
-                '}';
+        StringBuilder sb =  new StringBuilder();
+        for (ChessPiece[] row : squares){
+            for (ChessPiece piece : row){
+                sb.append("|");
+                if (piece == null){
+                    sb.append("   ");
+                }
+                else{
+                    char pieceChar = switch (piece.getPieceType()){
+                        case KING -> 'k';
+                        case QUEEN -> 'q';
+                        case BISHOP -> 'b';
+                        case KNIGHT -> 'n';
+                        case ROOK -> 'r';
+                        case PAWN -> 'p';
+                    };
+                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
+                        pieceChar = Character.toUpperCase(pieceChar);
+                    }
+                    sb.append(" ").append(pieceChar).append(" ");
+                }
+            }
+            sb.append("|");
+            sb.append("\n");
+        }
+        return sb.toString();
     }
 }
