@@ -17,7 +17,10 @@ public class ChessBoard {
         
     }
     public ChessBoard(ChessBoard board){
-        squares = Arrays.copyOf(board.squares, board.squares.length);
+        squares = new ChessPiece[8][8];
+        for (int i = 0; i < 8; i++){
+            squares[i] = Arrays.copyOf(board.squares[i],board.squares[i].length);
+        }
     }
 
     /**
