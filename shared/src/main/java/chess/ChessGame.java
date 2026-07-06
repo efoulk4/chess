@@ -61,16 +61,16 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         if (board.getPiece(startPosition) == null){
-            return null;
+            return new ArrayList<>();
         }
         else {
             ChessPiece piece = board.getPiece(startPosition);
             TeamColor team = piece.getTeamColor();
             Collection<ChessMove> pieceMoves = piece.pieceMoves(board, startPosition);
             Collection<ChessMove> validMoves = new ArrayList<>();
-            ChessBoard realBoard = getBoard();
+            ChessBoard realBoard =getBoard();
             for (ChessMove move : pieceMoves){
-                setBoard(realBoard);
+                setBoard(new ChessBoard(realBoard));
                 board.removePiece(move.getStartPosition());
                 board.addPiece(move.getEndPosition(), piece);
                 if (!isInCheck(team)){
@@ -88,13 +88,13 @@ public class ChessGame {
     }
 
     Collection<ChessMove> castling(ChessPosition startPosition, ChessPiece piece, Collection<ChessMove> validMoves){
-        if (piece.getHasMoved()){
-            return null;
+        if (startPosition.getColumn() != 5  || piece.getHasMoved() || isInCheck(piece.getTeamColor())){
+            return new ArrayList<>();
         }
         boolean queenside = true;
         boolean kingside = true;
-        ChessPiece kRook = board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()+3));
-        ChessPiece qRook = board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()-4));
+        ChessPiece kRook = board.getPiece(new ChessPosition(startPosition.getRow(), 8));
+        ChessPiece qRook = board.getPiece(new ChessPosition(startPosition.getRow(), 1));
 
         if (kRook == null || kRook.getPieceType() != ChessPiece.PieceType.ROOK || kRook.getHasMoved()){
             kingside = false;
@@ -102,13 +102,15 @@ public class ChessGame {
         if (qRook == null || qRook.getPieceType() != ChessPiece.PieceType.ROOK || qRook.getHasMoved()){
             queenside = false;
         }
-        for (int i = 1; i < 4; i++){
-            if (board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()+i)) != null){
+        for (int i = 1; i < 3; i++){
+            ChessPiece examined = board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()+i));
+            if (examined != null){
                 kingside = false;
             }
         }
-        for (int i = 1; i < 5; i++){
-            if (board.getPiece(new ChessPosition(startPosition.getRow(), startPosition.getColumn()-i)) != null){
+        for (int i = 1; i < 4; i++){
+            ChessPosition curPos = new ChessPosition(startPosition.getRow(), startPosition.getColumn()-i);
+            if (board.getPiece(curPos) != null){
                 queenside = false;
             }
         }
@@ -119,7 +121,7 @@ public class ChessGame {
         if(kingside){directions.add(1);}
         for (int dir : directions) {
             for (int i = 1; i < 3; i++) {
-                setBoard(realBoard);
+                setBoard(new ChessBoard(realBoard));
                 board.removePiece(startPosition);
                 ChessPosition curPos = new ChessPosition(startPosition.getRow(), startPosition.getColumn() + dir * i);
                 board.addPiece(curPos, piece);
