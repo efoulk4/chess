@@ -82,6 +82,21 @@ public class ChessGame {
                     castling(startPosition, piece, validMoves) != null){
                 validMoves.addAll(castling(startPosition, piece, validMoves));
             }
+            if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                    piece.isEnpassantAvailable()){
+                ChessMove potentialMove =
+                        new ChessMove(startPosition, piece.getEnpassantPosition(), null);
+                setBoard(new ChessBoard(realBoard));
+                board.removePiece(potentialMove.getStartPosition());
+                board.addPiece(potentialMove.getEndPosition(), piece);
+                ChessPosition targetedPiecePos =
+                        new ChessPosition(startPosition.getRow(), potentialMove.getEndPosition().getColumn());
+                board.removePiece(targetedPiecePos);
+                if (!isInCheck(team)){
+                    validMoves.add(potentialMove);
+                }
+
+            }
             setBoard(realBoard);
             return validMoves;
         }
