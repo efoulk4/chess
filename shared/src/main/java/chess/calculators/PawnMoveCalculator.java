@@ -62,6 +62,7 @@ public class PawnMoveCalculator implements PieceMoveCalculator{
         ChessPosition enpassantSquare =
                 new ChessPosition(resultantPosition.getRow()-dir, resultantPosition.getColumn());
         for (ChessPosition pos : new ChessPosition[]{left, right}){
+            if(!validateInBounds(pos)){continue;}
             ChessPiece piece = board.getPiece(pos);
             if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN){
                 piece.setEnpassantAvailable(true);

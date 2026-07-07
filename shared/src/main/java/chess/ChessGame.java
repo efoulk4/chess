@@ -92,10 +92,9 @@ public class ChessGame {
                 ChessPosition targetedPiecePos =
                         new ChessPosition(startPosition.getRow(), potentialMove.getEndPosition().getColumn());
                 board.removePiece(targetedPiecePos);
-                if (!isInCheck(team)){
+                if (!isInCheck(team)) {
                     validMoves.add(potentialMove);
                 }
-
             }
             setBoard(realBoard);
             return validMoves;
@@ -172,6 +171,13 @@ public class ChessGame {
         if (move.getPromotionPiece() != null){
             resultantPieceType = move.getPromotionPiece();
         }
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                move.getStartPosition().getColumn() != move.getEndPosition().getColumn() &&
+                board.getPiece(move.getEndPosition()) ==  null){
+            ChessPosition pos =
+                    new ChessPosition(move.getStartPosition().getRow(),move.getEndPosition().getColumn());
+            board.removePiece(pos);
+        }
         board.removePiece(move.getStartPosition());
         ChessPiece newPiece = new ChessPiece(piece.getTeamColor(),resultantPieceType);
         board.addPiece(move.getEndPosition(),newPiece);
@@ -193,8 +199,23 @@ public class ChessGame {
                 board.addPiece(new ChessPosition(row, 4),rook);
             }
         }
+        resetEnpassant(teamTurn);
         newPiece.setHasMoved();
         teamTurn = flipTeamColor(teamTurn);
+    }
+
+    public void resetEnpassant(TeamColor team){
+        ChessPosition curPos;
+        for (int row = 1; row < 9; row++){
+            for (int column = 1; column < 9; column++){
+                curPos = new ChessPosition(row, column);
+                ChessPiece piece = board.getPiece(curPos);
+                if (piece == null||piece.getTeamColor() != team){
+                    continue;
+                }
+                piece.setEnpassantAvailable(false);
+            }
+        }
     }
 
     Collection<ChessPosition> attackedSquares(ChessBoard board, TeamColor team){
@@ -212,7 +233,6 @@ public class ChessGame {
                     attacked.add(move.getEndPosition());
                 }
             }
-
         }
         return attacked;
     }
