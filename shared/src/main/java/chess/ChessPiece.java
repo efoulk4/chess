@@ -16,11 +16,29 @@ public class ChessPiece {
     private final ChessGame.TeamColor pieceColor;
     private final PieceType type;
     private boolean hasMoved;
+    private boolean enpassantAvailable;
+    private ChessPosition enpassantPosition;
 
     public ChessPiece(ChessGame.TeamColor pieceColor, PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
         this.hasMoved = false;
+        this.enpassantAvailable = false;
+    }
+
+    public boolean isEnpassantAvailable() {
+        return enpassantAvailable;
+    }
+    public void setEnpassantAvailable(boolean value){
+        enpassantAvailable = value;
+    }
+
+    public ChessPosition getEnpassantPosition() {
+        return enpassantPosition;
+    }
+
+    public void setEnpassantPosition(ChessPosition enpassantPosition) {
+        this.enpassantPosition = enpassantPosition;
     }
 
 
