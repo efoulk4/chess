@@ -1,9 +1,6 @@
 package chess.calculators;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +36,9 @@ public class PawnMoveCalculator implements PieceMoveCalculator{
             else{
                 break;
             }
+            if (i ==2 ){
+                handleEnpassant(board, curPos, dir);
+            }
         }
         /*
         CAPTURING
@@ -55,5 +55,18 @@ public class PawnMoveCalculator implements PieceMoveCalculator{
         }
 
         return legalMoves;
+    }
+    public void handleEnpassant(ChessBoard board, ChessPosition resultantPosition, int dir){
+        ChessPosition left = new ChessPosition(resultantPosition.getRow(), resultantPosition.getColumn()-1);
+        ChessPosition right = new ChessPosition(resultantPosition.getRow(), resultantPosition.getColumn()+1);
+        ChessPosition enpassantSquare =
+                new ChessPosition(resultantPosition.getRow()-dir, resultantPosition.getColumn());
+        for (ChessPosition pos : new ChessPosition[]{left, right}){
+            ChessPiece piece = board.getPiece(pos);
+            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN){
+                piece.setEnpassantAvailable(true);
+                piece.setEnpassantPosition(enpassantSquare);
+            }
+        }
     }
 }
