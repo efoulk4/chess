@@ -77,6 +77,7 @@ public class ChessGame {
                     validMoves.add(move);
                 }
             }
+
             setBoard(realBoard);
             if (piece.getPieceType() == ChessPiece.PieceType.KING &&
                     castling(startPosition, piece, validMoves) != null){
