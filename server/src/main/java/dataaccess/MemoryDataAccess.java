@@ -14,7 +14,6 @@ public class MemoryDataAccess implements DataAccess {
     private final HashMap<String, AuthData> auths = new HashMap<>();
     private int nextGameId = 1;
 
-
     @Override
     public void clear() throws DataAccessException {
             users.clear();
