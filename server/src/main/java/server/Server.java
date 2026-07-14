@@ -6,9 +6,11 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
+import model.GameData;
 import model.UserData;
 import service.*;
 
+import java.util.Collection;
 import java.util.Map;
 
 public class Server {
@@ -34,6 +36,8 @@ public class Server {
                 .post("/user", this::addUser)
                 .post("/session", this::loginUser)
                 .delete("/session", this::logoutUser)
+                .get("/game", this::listGames)
+                .post("/game", this::createGame)
 
 
 
@@ -64,6 +68,18 @@ public class Server {
         String authToken = ctx.header("authorization");
         userService.logoutUser(authToken);
         ctx.result("{}");
+    }
+    public void listGames (Context ctx){
+        String authToken = ctx.header("authorization");
+        Collection<GameData> res = gameService.getGames(authToken);
+        ListGamesResult list = new ListGamesResult(res);
+        ctx.result(gson.toJson(list));
+    }
+    public void createGame (Context ctx) {
+        String authToken = ctx.header("authorization");
+        CreateGameRequest req = gson.fromJson(ctx.body(), CreateGameRequest.class);
+        CreateGameResult res =  gameService.createGame(authToken, req);
+        ctx.result(gson.toJson(res));
     }
     public int run(int desiredPort) {
         javalin.start(desiredPort);
