@@ -36,11 +36,12 @@ public class MemoryDataAccess implements DataAccess {
     }
 
     @Override
-    public void createGame(String gameName) {
+    public GameData createGame(String gameName) {
         GameData game =
                 new GameData(nextGameId, null, null, gameName, new ChessGame());
         games.put(nextGameId, game);
         nextGameId++;
+        return game;
     }
 
     @Override

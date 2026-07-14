@@ -5,6 +5,8 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
 
+import javax.xml.crypto.Data;
+
 public class UserService {
     DataAccess dataAccess;
     AuthService authService;
@@ -36,7 +38,7 @@ public class UserService {
             return newAuth;
             }
 
-        public void logoutUser(String authToken){
+        public void logoutUser(String authToken) throws DataAccessException {
         authService.checkAuth(authToken);
         dataAccess.deleteAuth(authToken);
         }
