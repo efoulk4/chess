@@ -50,7 +50,6 @@ public class MemoryDataAccess implements DataAccess {
 
     @Override
     public Collection<GameData> listGames() {
-
         return games.values();
     }
 

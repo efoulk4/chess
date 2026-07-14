@@ -7,22 +7,16 @@ import model.UserData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class LoginTests {
+public class LoginTests extends BaseServiceTests{
     @Test
     public void successfulUserLogin() {
-        DataAccess dataAccess = new MemoryDataAccess();
-        UserData user = new UserData("mrWorldwide", "pw", "pmoney@gmail.com");
-        dataAccess.createUser(user);
-        UserService userService = new UserService(dataAccess);
-        LoginRequest login = new LoginRequest(user.username(), user.password());
+        dataAccess.createUser(pitbull);
+        LoginRequest login = new LoginRequest(pitbull.username(), pitbull.password());
         Assertions.assertInstanceOf(AuthData.class, userService.loginUser(login));
     }
     @Test
     public void badUsernameOrPassword(){
-        DataAccess dataAccess = new MemoryDataAccess();
-        UserData user = new UserData("mrWorldwide", "pw", "pmoney@gmail.com");
-        dataAccess.createUser(user);
-        UserService userService = new UserService(dataAccess);
+        dataAccess.createUser(pitbull);
 
         LoginRequest badUser =  new LoginRequest("snoop", "pw");
         LoginRequest badPass =  new LoginRequest("mrWorldwide", "abc");

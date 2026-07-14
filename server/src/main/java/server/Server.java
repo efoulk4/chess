@@ -23,10 +23,10 @@ public class Server {
 
     public Server() {
         dataAccess = new MemoryDataAccess();
-        clearService = new ClearService(dataAccess);
-        userService = new UserService(dataAccess);
-        gameService = new GameService(dataAccess);
         authService = new AuthService(dataAccess);
+        clearService = new ClearService(dataAccess);
+        userService = new UserService(dataAccess, authService);
+        gameService = new GameService(dataAccess, authService);
         gson = new Gson();
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))

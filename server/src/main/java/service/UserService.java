@@ -4,11 +4,14 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 
 public class UserService {
     DataAccess dataAccess;
-    public UserService(DataAccess dataAccess) {this.dataAccess = dataAccess;}
+    AuthService authService;
+    public UserService(DataAccess dataAccess, AuthService authService) {
+        this.dataAccess = dataAccess;
+        this.authService = authService;
+    }
         public AuthData registerUser(UserData user) throws DataAccessException {
             if (user.username() == null || user.password() == null || user.email() == null){
                 throw new BadRequestException("Error: bad request");
@@ -34,13 +37,7 @@ public class UserService {
             }
 
         public void logoutUser(String authToken){
-        if (authToken == null){
-            throw new UnauthorizedException("Error: unauthorized");
-        }
-        AuthData auth = dataAccess.getAuth(authToken);
-        if (auth == null){
-            throw new UnauthorizedException("Error: unauthorized");
-        }
+        authService.checkAuth(authToken);
         dataAccess.deleteAuth(authToken);
         }
 }
