@@ -38,6 +38,7 @@ public class Server {
                 .delete("/session", this::logoutUser)
                 .get("/game", this::listGames)
                 .post("/game", this::createGame)
+                .put("/game", this::joinGame)
 
 
 
@@ -80,6 +81,12 @@ public class Server {
         CreateGameRequest req = gson.fromJson(ctx.body(), CreateGameRequest.class);
         CreateGameResult res =  gameService.createGame(authToken, req);
         ctx.result(gson.toJson(res));
+    }
+    public void joinGame (Context ctx){
+        String authToken = ctx.header("authorization");
+        JoinGameRequest req = gson.fromJson(ctx.body(), JoinGameRequest.class);
+        gameService.joinGame(authToken,req);
+        ctx.result("{}");
     }
     public int run(int desiredPort) {
         javalin.start(desiredPort);

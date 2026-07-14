@@ -30,7 +30,7 @@ public class GameService {
         return new CreateGameResult(game.gameID());
     }
     public void joinGame(String authToken, JoinGameRequest req){
-        if(authToken == null || req == null) {
+        if(authToken == null || req == null || req.playerColor() == null || dataAccess.getGame(req.gameID()) == null) {
             throw new BadRequestException("Error: bad request");
         }
         authService.checkAuth(authToken);
