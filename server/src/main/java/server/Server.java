@@ -6,7 +6,6 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
-import model.AuthData;
 import model.UserData;
 import service.*;
 
@@ -33,6 +32,7 @@ public class Server {
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clearData)
                 .post("/user", this::addUser)
+                .post("/session", this::loginUser)
 
 
                 .exception(BadRequestException.class, (e, ctx)  ->
@@ -51,6 +51,10 @@ public class Server {
     public void addUser (Context ctx){
         UserData req = gson.fromJson(ctx.body(), UserData.class);
         ctx.result(gson.toJson(userService.registerUser(req)));
+    }
+    public void loginUser (Context ctx){
+        LoginRequest req = gson.fromJson(ctx.body(), LoginRequest.class);
+        ctx.result(gson.toJson(userService.loginUser(req)));
     }
     public int run(int desiredPort) {
         javalin.start(desiredPort);
