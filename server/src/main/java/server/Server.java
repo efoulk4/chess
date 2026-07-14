@@ -1,12 +1,10 @@
 package server;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import io.javalin.*;
-import service.AuthService;
-import service.ClearService;
-import service.GameService;
-import service.UserService;
+import service.*;
 
 public class Server {
 
@@ -21,7 +19,16 @@ public class Server {
         GameService gameService = new GameService(dataAccess);
         AuthService authService = new AuthService(dataAccess);
 
-        // Register your endpoints and exception handlers here.
+
+
+        javalin.exception(BadRequestException.class, (e, ctx)  ->
+                ctx.status(400).json(e));
+        javalin.exception(UnauthorizedException.class, (e, ctx)  ->
+                ctx.status(401).json(e));
+        javalin.exception(AlreadyTakenException.class, (e, ctx)  ->
+                ctx.status(403).json(e));
+        javalin.exception(DataAccessException.class, (e, ctx)  ->
+                ctx.status(500).json(e));
 
     }
 
