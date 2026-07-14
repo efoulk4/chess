@@ -21,15 +21,26 @@ public class UserService {
 
 
         public AuthData loginUser(LoginRequest user) throws DataAccessException{
-            if (user.username() == null || user.Password() == null){
+            if (user.username() == null || user.password() == null){
                 throw new BadRequestException("Error: bad request");
             }
             UserData userData = dataAccess.getUser(user.username());
-            if(userData == null || !user.Password().equals(userData.password())){
+            if(userData == null || !user.password().equals(userData.password())){
                 throw new UnauthorizedException("Error: unauthorized");
             }
             AuthData newAuth = new AuthData(dataAccess.generateToken(), user.username());
             dataAccess.createAuth(newAuth);
             return newAuth;
             }
+
+        public void logoutUser(String authToken){
+        if (authToken == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        AuthData auth = dataAccess.getAuth(authToken);
+        if (auth == null){
+            throw new UnauthorizedException("Error: unauthorized");
+        }
+        dataAccess.deleteAuth(authToken);
+        }
 }

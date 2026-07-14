@@ -33,6 +33,8 @@ public class Server {
                 .delete("/db", this::clearData)
                 .post("/user", this::addUser)
                 .post("/session", this::loginUser)
+                .delete("/session", this::logoutUser)
+
 
 
                 .exception(BadRequestException.class, (e, ctx)  ->
@@ -42,7 +44,9 @@ public class Server {
                 .exception(AlreadyTakenException.class, (e, ctx)  ->
                         ctx.status(403).result(gson.toJson(Map.of("message", e.getMessage()))))
                 .exception(DataAccessException.class, (e, ctx)  ->
-                        ctx.status(500).result(gson.toJson(Map.of("message", e.getMessage()))));
+                        ctx.status(500).result(gson.toJson(Map.of("message", e.getMessage()))))
+                .exception(Exception.class, (e, ctx) ->
+                        ctx.status(500).result(gson.toJson(Map.of("message", "Error: " + e.getMessage()))));
     }
     public void clearData (Context ctx){
         clearService.clear();
@@ -55,6 +59,11 @@ public class Server {
     public void loginUser (Context ctx){
         LoginRequest req = gson.fromJson(ctx.body(), LoginRequest.class);
         ctx.result(gson.toJson(userService.loginUser(req)));
+    }
+    public void logoutUser (Context ctx) {
+        String authToken = ctx.header("authorization");
+        userService.logoutUser(authToken);
+        ctx.result("{}");
     }
     public int run(int desiredPort) {
         javalin.start(desiredPort);
