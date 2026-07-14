@@ -1,5 +1,6 @@
 package server;
 
+import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
@@ -11,14 +12,18 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        javalin = Javalin.create(config -> config.staticFiles.add("web"));
-
         DataAccess dataAccess = new MemoryDataAccess();
         ClearService clearService = new ClearService(dataAccess);
         UserService userService = new UserService(dataAccess);
         GameService gameService = new GameService(dataAccess);
         AuthService authService = new AuthService(dataAccess);
+        Gson gson = new Gson();
 
+        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+                .delete("/db", (ctx) -> {
+                    clearService.clear();
+                    ctx.result("{}");
+                        });
 
 
         javalin.exception(BadRequestException.class, (e, ctx)  ->
