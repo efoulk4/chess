@@ -8,20 +8,20 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class ListGamesTests {
+public class ListGamesTests extends BaseServiceTests{
     @Test
     public void successfulListGames (){
-        DataAccess dataAccess = new MemoryDataAccess();
-        UserData user = new UserData("mrWorldwide", "pw", "pmoney@gmail.com");
-        AuthData auth = dataAccess.createUser(user);
+        AuthData auth = dataAccess.createUser(pitbull);
         dataAccess.createGame("game1");
         dataAccess.createGame("game2");
-        AuthService authService = new AuthService(dataAccess);
-        GameService gameService = new GameService(dataAccess, authService);
         Assertions.assertEquals(dataAccess.listGames(), gameService.getGames(auth.authToken()));
     }
     @Test
     public void unauthorizedCannotViewGames() {
-        
+        AuthData auth = dataAccess.createUser(pitbull);
+        dataAccess.createGame("game1");
+        dataAccess.createGame("game2");
+        userService.logoutUser(auth.authToken());
+        Assertions.assertThrows(UnauthorizedException.class, () -> gameService.getGames(auth.authToken()));
     }
 }
