@@ -74,14 +74,14 @@ public class MySqlDataAccess implements DataAccess {
               `blackUsername` varchar(256),
               `gameName` varchar(256) NOT NULL,
               `game` TEXT NOT NULL,
-              PRIMARY KEY (`gameID`),
+              PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """,
             """
            CREATE TABLE IF NOT EXISTS  auth (
            `authToken` varchar(256) NOT NULL,
            `username` varchar(256) NOT NULL,
-           PRIMARY KEY (`authToken`),
+           PRIMARY KEY (`authToken`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
            """,
             """
@@ -89,7 +89,7 @@ public class MySqlDataAccess implements DataAccess {
            `username` varchar(256) NOT NULL,
            `password` varchar(256) NOT NULL,
            `email` varchar(256) NOT NULL,
-           PRIMARY KEY (`username`),
+           PRIMARY KEY (`username`)
            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
            """
     };
