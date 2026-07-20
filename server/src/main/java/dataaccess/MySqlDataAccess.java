@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
@@ -65,7 +64,7 @@ public class MySqlDataAccess implements DataAccess {
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
         var statement =
-        "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        "INSERT INTO game (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         ChessGame game = new ChessGame();
         String json = new Gson().toJson(game);
         int id = executeUpdate(statement, null, null, gameName, json);
@@ -130,17 +129,33 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void createAuth(AuthData auth) throws DataAccessException {
-
+    var statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+    executeUpdate(statement, auth.authToken(), auth.username());
     }
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
+        try(Connection conn = DatabaseManager.getConnection()){
+            var statement  = "SELECT authToken, username FROM auth WHERE authToken=?";
+            try(PreparedStatement ps  = conn.prepareStatement(statement)){
+                ps.setString(1, authToken);
+                try(ResultSet rs = ps.executeQuery()){
+                    if (rs.next()){
+                        return readAuth(rs);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-
+    var statement = "DELETE FROM auth WHERE authToken=?";
+    executeUpdate(statement, authToken);
     }
 
     public UserData readUser (ResultSet rs) throws SQLException {
@@ -157,6 +172,12 @@ public class MySqlDataAccess implements DataAccess {
         String json = rs.getString("game");
         ChessGame game = new Gson().fromJson(json, ChessGame.class);
         return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+    }
+
+    public AuthData readAuth (ResultSet rs) throws SQLException{
+        String authToken = rs.getString("authToken");
+        String username = rs.getString("username");
+        return new AuthData(authToken, username);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
