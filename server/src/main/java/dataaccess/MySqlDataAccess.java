@@ -1,5 +1,7 @@
 package dataaccess;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -61,11 +63,31 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public GameData createGame(String gameName) throws DataAccessException {
-        return null;
+        var statement =
+        "INSERT INTO game (gameID, whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
+        ChessGame game = new ChessGame();
+        String json = new Gson().toJson(game);
+        int id = executeUpdate(statement, null, null, gameName, json);
+        return new GameData(id, null, null, gameName, game);
     }
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
+        try (Connection conn = DatabaseManager.getConnection()){
+            var statement =
+                "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM game where gameID=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)){
+                ps.setInt(1, gameID);
+                try(ResultSet rs  = ps.executeQuery()){
+                    if(rs.next()){
+                        return readGame(rs);
+                    }
+                }
+            }
+        }
+        catch (Exception e){
+            throw new DataAccessException(String.format("Unable to read data: %s", e.getMessage()));
+        }
         return null;
     }
 
@@ -99,6 +121,15 @@ public class MySqlDataAccess implements DataAccess {
         String hash = rs.getString("password");
         String email = rs.getString("email");
         return new UserData(username, hash, email);
+    }
+    public GameData readGame (ResultSet rs) throws SQLException {
+        int gameID = rs.getInt("gameID");
+        String whiteUsername = rs.getString("whiteUsername");
+        String blackUsername = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+        String json = rs.getString("game");
+        ChessGame game = new Gson().fromJson(json, ChessGame.class);
+        return new GameData(gameID, whiteUsername, blackUsername, gameName, game);
     }
 
     private int executeUpdate(String statement, Object... params) throws DataAccessException {
