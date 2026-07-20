@@ -3,6 +3,7 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,12 +24,19 @@ public class MySqlDataAccess implements DataAccess {
     @Override
     public void clear() throws DataAccessException {
     var statement = "TRUNCATE game, auth, user";
-
+    executeUpdate(statement);
     }
 
     @Override
     public AuthData createUser(UserData user) throws DataAccessException {
-        return null;
+        var statement  =
+                "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
+        String hash = BCrypt.hashpw(user.password(),BCrypt.gensalt());
+        executeUpdate(statement, user.username(), hash, user.email());
+        String authToken = generateToken();
+        statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
+        executeUpdate(statement, authToken, user.username());
+        return new AuthData(authToken, user.username());
     }
 
     @Override
