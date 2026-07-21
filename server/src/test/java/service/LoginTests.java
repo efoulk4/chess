@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 public class LoginTests extends BaseServiceTests{
     @Test
     public void successfulUserLogin() {
-        dataAccess.createUser(pitbull);
+        userService.registerUser(pitbull);
         LoginRequest login = new LoginRequest(pitbull.username(), pitbull.password());
         Assertions.assertInstanceOf(AuthData.class, userService.loginUser(login));
     }
     @Test
     public void badUsernameOrPassword(){
-        dataAccess.createUser(pitbull);
+        userService.registerUser(pitbull);
 
         LoginRequest badUser =  new LoginRequest("snoop", "pw");
         LoginRequest badPass =  new LoginRequest("mrWorldwide", "abc");

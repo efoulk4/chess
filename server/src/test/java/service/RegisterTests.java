@@ -11,7 +11,7 @@ public class RegisterTests extends BaseServiceTests {
     @Test
     public void successfulUserCreation() {
         AuthData auth = userService.registerUser(pitbull);
-        Assertions.assertEquals(pitbull, dataAccess.getUser("mrWorldwide"));
+        Assertions.assertEquals(pitbull.username(), dataAccess.getUser("mrWorldwide").username());
         Assertions.assertNotNull(auth.authToken());
     }
     @Test

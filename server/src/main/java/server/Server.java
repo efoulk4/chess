@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.GameData;
@@ -24,7 +25,7 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        dataAccess = new MemoryDataAccess();
+        dataAccess = new MySqlDataAccess();
         authService = new AuthService(dataAccess);
         clearService = new ClearService(dataAccess);
         userService = new UserService(dataAccess, authService);
