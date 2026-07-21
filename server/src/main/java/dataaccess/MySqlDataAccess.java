@@ -26,8 +26,10 @@ public class MySqlDataAccess implements DataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-    var statement = "TRUNCATE game, auth, user";
-    executeUpdate(statement);
+    executeUpdate("TRUNCATE game");
+    executeUpdate("TRUNCATE user");
+    executeUpdate("TRUNCATE auth");
+
     }
 
     @Override
