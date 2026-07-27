@@ -51,7 +51,7 @@ public class ServerFacade {
         }
         return  result.games();
     }
-    public CreateGameResult createGame (CreateGameRequest createGameRequest){
+    public CreateGameResult createGame (CreateGameRequest createGameRequest, String authToken){
         var request = buildRequest("POST", "/game", createGameRequest, authToken);
         var response = sendRequest(request);
         return handleResponse(response, CreateGameResult.class);

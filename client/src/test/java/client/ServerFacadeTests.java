@@ -1,15 +1,14 @@
 package client;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import service.AlreadyTakenException;
-import service.CreateGameRequest;
-import service.LoginRequest;
-import service.UnauthorizedException;
+import service.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,7 +38,7 @@ public class ServerFacadeTests {
     @Test
     public void clear() {
         var authData = facade.register(user);
-        var game1 = facade.createGame(new CreateGameRequest("mygame"));
+        var game1 = facade.createGame(new CreateGameRequest("mygame"), authData.authToken());
         facade.clear();
         assertNull(dataAccess.listGames());
         assertNull(dataAccess.getAuth(authData.authToken()));
@@ -91,32 +90,62 @@ public class ServerFacadeTests {
 
     @Test
     public void getGamesTestPositive() {
-        assertTrue(true);
+        var authData = facade.register(user);
+        facade.createGame(new CreateGameRequest("mygame"), authData.authToken());
+        facade.createGame(new CreateGameRequest("game2"), authData.authToken());
+        var games = facade.getGames(authData.authToken());
+        assertTrue(games.size() >1);
     }
 
     @Test
     public void getGamesTestNegative() {
-        assertTrue(true);
+        var authData = facade.register(user);
+        facade.createGame(new CreateGameRequest("mygame"), authData.authToken());
+        facade.createGame(new CreateGameRequest("game2"), authData.authToken());
+        assertThrows(UnauthorizedException.class, () -> facade.getGames("myAuth"));
     }
 
     @Test
     public void createGameTestPositive() {
-        assertTrue(true);
+        var authData = facade.register(user);
+        CreateGameResult cgr = facade.createGame(new CreateGameRequest("game1"), authData.authToken());
+        int gameID = cgr.gameID();
+        assertNotNull(dataAccess.getGame(gameID));
     }
 
     @Test
     public void createGameTestNegative() {
-        assertTrue(true);
+        assertThrows(UnauthorizedException.class, () ->
+                facade.createGame(new CreateGameRequest("game1"), "trashAuth"));
     }
 
     @Test
     public void joiGameTestPositive() {
-        assertTrue(true);
+        var authData = facade.register(user);
+        UserData user2 = new UserData("james","pw2", "j@j.j");
+        var authData2 = facade.register(user2);
+        CreateGameResult cgr = facade.createGame(new CreateGameRequest("game1"), authData.authToken());
+        int gameID = cgr.gameID();
+        JoinGameRequest joinGameRequestWhite = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest joinGameRequestBlack = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+        facade.joinGame(joinGameRequestWhite, authData.authToken());
+        facade.joinGame(joinGameRequestBlack, authData2.authToken());
+        assertNotNull(dataAccess.getGame(gameID).blackUsername());
+        assertNotNull(dataAccess.getGame(gameID).whiteUsername());
     }
 
     @Test
     public void joinGameTestNegative() {
-        assertTrue(true);
+        var authData = facade.register(user);
+        UserData user2 = new UserData("james","pw2", "j@j.j");
+        var authData2 = facade.register(user2);
+        CreateGameResult cgr = facade.createGame(new CreateGameRequest("game1"), authData.authToken());
+        int gameID = cgr.gameID();
+        JoinGameRequest joinGameRequestWhite = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        JoinGameRequest joinGameRequestBlack = new JoinGameRequest(ChessGame.TeamColor.BLACK, gameID);
+        facade.joinGame(joinGameRequestWhite, authData.authToken());
+        assertThrows(AlreadyTakenException.class, () ->
+                facade.joinGame(joinGameRequestBlack, authData2.authToken()));
     }
 
 
