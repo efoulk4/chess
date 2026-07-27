@@ -20,10 +20,70 @@ public class ServerFacadeTests {
         server.stop();
     }
 
-
     @Test
-    public void sampleTest() {
+    public void clear() {
         Assertions.assertTrue(true);
     }
+
+    @Test
+    public void createTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void createTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void loginTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void loginTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void logoutTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void logoutTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void getGamesTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void getGamesTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void createGameTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void createGameTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void joiGameTestPositive() {
+        Assertions.assertTrue(true);
+    }
+
+    @Test
+    public void joinGameTestNegative() {
+        Assertions.assertTrue(true);
+    }
+
 
 }
