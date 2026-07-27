@@ -1,18 +1,34 @@
 package client;
 
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+import dataaccess.MySqlDataAccess;
+import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
+import service.AlreadyTakenException;
+import service.CreateGameRequest;
+import service.LoginRequest;
+import service.UnauthorizedException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
+    private static ServerFacade facade;
+    private static UserData user;
+    DataAccess dataAccess;
 
     @BeforeAll
     public static void init() {
+        DataAccess dataAccess = new MySqlDataAccess();
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        facade = new ServerFacade("http://localhost:"+ port);
+        user = new UserData("mrWorldwide", "pw", "pmoney@gmail.com");
     }
 
     @AfterAll
@@ -22,67 +38,85 @@ public class ServerFacadeTests {
 
     @Test
     public void clear() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        var game1 = facade.createGame(new CreateGameRequest("mygame"));
+        facade.clear();
+        assertNull(dataAccess.listGames());
+        assertNull(dataAccess.getAuth(authData.authToken()));
     }
 
     @Test
-    public void createTestPositive() {
-        Assertions.assertTrue(true);
+    public void createTestPositive()  {
+        var authData = facade.register(user);
+        assertTrue(authData.authToken().length() > 10);
     }
 
     @Test
     public void createTestNegative() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        assertThrows(AlreadyTakenException.class, () -> facade.register(user));
     }
 
     @Test
     public void loginTestPositive() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        facade.logout(authData.authToken());
+        assertThrows(DataAccessException.class, () -> facade.getGames(authData.authToken()));
+        var newAuth = facade.login(new LoginRequest(user.username(), user.password()));
+        assertDoesNotThrow(() ->facade.getGames(newAuth.authToken()));
     }
 
     @Test
     public void loginTestNegative() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        facade.logout(authData.authToken());
+        assertThrows(DataAccessException.class, () -> facade.getGames(authData.authToken()));
+        assertThrows(UnauthorizedException.class, () ->
+                facade.login(new LoginRequest(user.username(), "abc123")));
     }
 
     @Test
     public void logoutTestPositive() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        facade.logout(authData.authToken());
+        assertThrows(DataAccessException.class, () -> facade.getGames(authData.authToken()));
     }
 
     @Test
     public void logoutTestNegative() {
-        Assertions.assertTrue(true);
+        var authData = facade.register(user);
+        facade.logout(authData.authToken());
+        assertThrows(DataAccessException.class, () -> facade.logout(authData.authToken()));
     }
 
     @Test
     public void getGamesTestPositive() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void getGamesTestNegative() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void createGameTestPositive() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void createGameTestNegative() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void joiGameTestPositive() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
     @Test
     public void joinGameTestNegative() {
-        Assertions.assertTrue(true);
+        assertTrue(true);
     }
 
 
