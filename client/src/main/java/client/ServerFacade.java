@@ -101,7 +101,7 @@ public class ServerFacade {
                 throw new RuntimeException("Error: Couldn't handle response -- empty body");
             }
 
-            throw new RuntimeException("Error: Couldn't handle response -- other error");
+            throw new RuntimeException("Error: Couldn't handle response -- other error" + status);
         }
 
         if (responseClass != null) {
