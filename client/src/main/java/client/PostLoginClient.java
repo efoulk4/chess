@@ -71,8 +71,16 @@ public class PostLoginClient {
     public String join(String... params) throws RuntimeException {
         if (params.length == 2) {
             int frontendGameID = Integer.parseInt(params[0]);
-            ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1]);
-            int backendGameID = gameList.get(frontendGameID);
+            ChessGame.TeamColor color;
+            try {
+                color = ChessGame.TeamColor.valueOf(params[1].toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Color must be WHITE or BLACK");
+            }
+            Integer backendGameID = gameList.get(frontendGameID);
+            if (backendGameID == null) {
+                throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
+            }
             JoinGameRequest jgr = new JoinGameRequest(color, backendGameID);
             facade.joinGame(jgr, session.authToken());
             session.setGameID(backendGameID);
@@ -85,9 +93,14 @@ public class PostLoginClient {
     }
     public String observe(String... params) throws RuntimeException{
         if (params.length == 1) {
-            int frontendGameID = Integer.parseInt(params[0]);
+            Integer frontendGameID = Integer.parseInt(params[0]);
+            Integer backendGameID = gameList.get(frontendGameID);
+            if (backendGameID == null) {
+                throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
+            }
+            session.setGameID(backendGameID);
             session.setState(State.GAME);
-            return String.format("Oberserving game %d", frontendGameID);
+            return String.format("Observing game %d", frontendGameID);
         } else {
             throw new RuntimeException("Expected: observe <GAMEID>");
         }

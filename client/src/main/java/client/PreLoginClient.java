@@ -17,12 +17,12 @@ public class PreLoginClient {
 
     public String eval(String input) {
         try {
-            String[] tokens = input.toLowerCase().split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0] : "help";
+            String[] tokens = input.split(" ");
+            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "register" -> register(params);
-                case "signin" -> login(params);
+                case "login" -> login(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -39,6 +39,7 @@ public class PreLoginClient {
             UserData user = new UserData(username, pw, email);
             AuthData auth = facade.register(user);
             session.setState(State.POSTLOGIN);
+            session.setAuthToken(auth.authToken());
             return String.format("Signed in as %s.", auth.username());
         } else {
             throw new RuntimeException("Expected: register <USERNAME> <PASSWORD> <EMAIL>");
@@ -51,6 +52,7 @@ public class PreLoginClient {
             LoginRequest loginRequest = new LoginRequest(username, pw);
             AuthData auth = facade.login(loginRequest);
             session.setState(State.POSTLOGIN);
+            session.setAuthToken(auth.authToken());
             return String.format("Signed in as %s.", auth.username());
         } else {
             throw new RuntimeException("Expected: signIn <USERNAME> <PASSWORD>");
@@ -60,7 +62,7 @@ public class PreLoginClient {
     public String help() {
         return """
                 - register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                - signIn <USERNAME> <PASSWORD> - to play chess
+                - login <USERNAME> <PASSWORD> - to play chess
                 - quit - playing chess
                 - help - with possible commands
                 """;
