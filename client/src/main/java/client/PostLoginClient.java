@@ -16,7 +16,7 @@ import java.util.Map;
 public class PostLoginClient {
     private final ServerFacade facade;
     private final Session session;
-    private final Map<Integer, Integer> gameList = new HashMap<>();
+    private final Map<Integer, GameData> gameList = new HashMap<>();
     public PostLoginClient(ServerFacade facade, Session session) {
         this.facade = facade;
         this.session = session;
@@ -55,7 +55,7 @@ public class PostLoginClient {
         StringBuilder sb = new StringBuilder();
         int i = 1;
         for (GameData game: games){
-            gameList.put(i, game.gameID());
+            gameList.put(i, game);
             String whiteName = game.whiteUsername();
             String blackName = game.blackUsername();
             sb.append(String.format("%d. %s: White: %s, Black: %s%n", i, game.gameName(), whiteName, blackName));
@@ -77,16 +77,16 @@ public class PostLoginClient {
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException("Color must be WHITE or BLACK");
             }
-            Integer backendGameID = gameList.get(frontendGameID);
-            if (backendGameID == null) {
+            GameData game = gameList.get(frontendGameID);
+            if (game == null) {
                 throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
             }
-            JoinGameRequest jgr = new JoinGameRequest(color, backendGameID);
+            JoinGameRequest jgr = new JoinGameRequest(color, game.gameID());
             facade.joinGame(jgr, session.authToken());
-            session.setGameID(backendGameID);
+            session.setGameID(game.gameID());
             session.setColor(color);
             session.setState(State.GAME);
-            return String.format("Joined game %d as %s.", frontendGameID, color);
+            return BoardRenderer.draw(game.game().getBoard(), color);
         } else {
             throw new RuntimeException("Expected: join <GAMEID> <WHITE|BLACK>");
         }
@@ -94,13 +94,13 @@ public class PostLoginClient {
     public String observe(String... params) throws RuntimeException{
         if (params.length == 1) {
             Integer frontendGameID = Integer.parseInt(params[0]);
-            Integer backendGameID = gameList.get(frontendGameID);
-            if (backendGameID == null) {
+            GameData game = gameList.get(frontendGameID);
+            if (game == null) {
                 throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
             }
-            session.setGameID(backendGameID);
+            session.setGameID(game.gameID());
             session.setState(State.GAME);
-            return String.format("Observing game %d", frontendGameID);
+            return BoardRenderer.draw(game.game().getBoard(), ChessGame.TeamColor.WHITE);
         } else {
             throw new RuntimeException("Expected: observe <GAMEID>");
         }
