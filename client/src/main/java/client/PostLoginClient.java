@@ -1,10 +1,12 @@
 package client;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import service.CreateGameRequest;
 import service.CreateGameResult;
+import service.JoinGameRequest;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -65,8 +67,36 @@ public class PostLoginClient {
         else{
             return sb.toString();
         }
-
-
+    }
+    public String join(String... params) throws RuntimeException {
+        if (params.length == 2) {
+            int frontendGameID = Integer.parseInt(params[0]);
+            ChessGame.TeamColor color = ChessGame.TeamColor.valueOf(params[1]);
+            int backendGameID = gameList.get(frontendGameID);
+            JoinGameRequest jgr = new JoinGameRequest(color, backendGameID);
+            facade.joinGame(jgr, session.authToken());
+            session.setGameID(backendGameID);
+            session.setColor(color);
+            session.setState(State.GAME);
+            return String.format("Joined game %d as %s.", frontendGameID, color);
+        } else {
+            throw new RuntimeException("Expected: join <GAMEID> <WHITE|BLACK>");
+        }
+    }
+    public String observe(String... params) throws RuntimeException{
+        if (params.length == 1) {
+            int frontendGameID = Integer.parseInt(params[0]);
+            session.setState(State.GAME);
+            return String.format("Oberserving game %d", frontendGameID);
+        } else {
+            throw new RuntimeException("Expected: observe <GAMEID>");
+        }
+    }
+    public String logout() throws RuntimeException{
+        facade.logout(session.authToken());
+        session.setState(State.PRELOGIN);
+        return "Logged Out, Thanks for playing!";
+    }
 
     public String help() {
         return """
