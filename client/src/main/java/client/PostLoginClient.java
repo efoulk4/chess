@@ -1,10 +1,20 @@
 package client;
 
+import model.AuthData;
+import model.GameData;
+import model.UserData;
+import service.CreateGameRequest;
+import service.CreateGameResult;
+
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PostLoginClient {
     private final ServerFacade facade;
     private final Session session;
+    private final Map<Integer, Integer> gameList = new HashMap<>();
     public PostLoginClient(ServerFacade facade, Session session) {
         this.facade = facade;
         this.session = session;
@@ -27,6 +37,34 @@ public class PostLoginClient {
             return ex.getMessage();
         }
     }
+    public String create(String... params) throws RuntimeException {
+        if (params.length == 1) {
+            String gameName = params[0];
+            CreateGameRequest cgr = new CreateGameRequest(gameName);
+            facade.createGame(cgr, session.authToken());
+            return String.format("Created game: %s.", gameName);
+        } else {
+            throw new RuntimeException("Expected: create <GAMENAME> - a game");
+        }
+    }
+    public String list() throws RuntimeException {
+        Collection<GameData> games = facade.getGames(session.authToken());
+        gameList.clear();
+        StringBuilder sb = new StringBuilder();
+        int i = 1;
+        for (GameData game: games){
+            gameList.put(i, game.gameID());
+            String whiteName = game.whiteUsername();
+            String blackName = game.blackUsername();
+            sb.append(String.format("%d. %s: White: %s, Black: %s%n", i, game.gameName(), whiteName, blackName));
+            i++;
+        }
+        if (gameList.isEmpty()){
+            return "No games yet -- make one with create <GAMENAME>";
+        }
+        else{
+            return sb.toString();
+        }
 
 
 
