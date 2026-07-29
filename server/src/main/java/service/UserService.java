@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.AuthData;
 import model.UserData;
+import model.LoginRequest;
 import org.mindrot.jbcrypt.BCrypt;
 
 import javax.xml.crypto.Data;

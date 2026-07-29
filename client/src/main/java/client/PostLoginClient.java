@@ -4,9 +4,9 @@ import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import service.CreateGameRequest;
-import service.CreateGameResult;
-import service.JoinGameRequest;
+import model.CreateGameRequest;
+import model.CreateGameResult;
+import model.JoinGameRequest;
 
 import java.util.Arrays;
 import java.util.Collection;

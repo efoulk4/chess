@@ -8,7 +8,10 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.Server;
-import service.*;
+import model.CreateGameRequest;
+import model.CreateGameResult;
+import model.JoinGameRequest;
+import model.LoginRequest;
 
 import java.lang.RuntimeException;
 import java.util.Collection;

@@ -1,6 +1,8 @@
 package service;
 
 import model.AuthData;
+import model.CreateGameRequest;
+import model.CreateGameResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

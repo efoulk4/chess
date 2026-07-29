@@ -4,6 +4,7 @@ import dataaccess.DataAccess;
 import dataaccess.MemoryDataAccess;
 import model.AuthData;
 import model.UserData;
+import model.LoginRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

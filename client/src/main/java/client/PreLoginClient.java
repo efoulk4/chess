@@ -2,7 +2,7 @@ package client;
 
 import model.AuthData;
 import model.UserData;
-import service.LoginRequest;
+import model.LoginRequest;
 
 import java.util.Arrays;
 

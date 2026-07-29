@@ -12,7 +12,11 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import service.*;
+import model.CreateGameRequest;
+import model.CreateGameResult;
+import model.JoinGameRequest;
+import model.ListGamesResult;
+import model.LoginRequest;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();

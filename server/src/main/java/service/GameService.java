@@ -6,6 +6,9 @@ import dataaccess.DataAccessException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import model.CreateGameRequest;
+import model.CreateGameResult;
+import model.JoinGameRequest;
 
 import java.util.Collection;
 

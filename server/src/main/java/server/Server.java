@@ -10,6 +10,11 @@ import io.javalin.http.Context;
 import model.GameData;
 import model.UserData;
 import service.*;
+import model.CreateGameRequest;
+import model.CreateGameResult;
+import model.JoinGameRequest;
+import model.ListGamesResult;
+import model.LoginRequest;
 
 import java.util.Collection;
 import java.util.Map;
