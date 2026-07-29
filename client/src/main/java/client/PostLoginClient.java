@@ -100,6 +100,7 @@ public class PostLoginClient {
             }
             session.setGameID(game.gameID());
             session.setState(State.GAME);
+            session.setColor(null);
             return BoardRenderer.draw(game.game().getBoard(), ChessGame.TeamColor.WHITE);
         } else {
             throw new RuntimeException("Expected: observe <GAMEID>");
@@ -107,6 +108,7 @@ public class PostLoginClient {
     }
     public String logout() throws RuntimeException{
         facade.logout(session.authToken());
+        session.setAuthToken(null);
         session.setState(State.PRELOGIN);
         return "Logged Out, Thanks for playing!";
     }
