@@ -16,19 +16,15 @@ public class PreLoginClient {
     }
 
     public String eval(String input) {
-        try {
-            String[] tokens = input.split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> "quit";
-                default -> help();
-            };
-        } catch (Exception ex) {
-            return ex.getMessage();
-        }
+        String[] tokens = input.split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd) {
+            case "register" -> register(params);
+            case "login" -> login(params);
+            case "quit" -> "quit";
+            default -> help();
+        };
     }
 
     public String register(String... params) throws RuntimeException {

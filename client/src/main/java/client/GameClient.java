@@ -13,19 +13,15 @@ public class GameClient {
     }
 
     public String eval(String input) {
-        try {
-            String[] tokens = input.split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "redraw" -> BoardRenderer.draw(new ChessGame().getBoard(), session.color());
-                case "leave" -> leave();
-                case "quit" -> "quit";
-                default -> help();
-            };
-        } catch (Exception ex) {
-            return ex.getMessage();
-        }
+        String[] tokens = input.split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd) {
+            case "redraw" -> BoardRenderer.draw(new ChessGame().getBoard(), session.color());
+            case "leave" -> leave();
+            case "quit" -> "quit";
+            default -> help();
+        };
     }
     private String leave() {
         session.setState(State.POSTLOGIN);

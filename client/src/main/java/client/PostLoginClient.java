@@ -22,22 +22,18 @@ public class PostLoginClient {
         this.session = session;
     }
     public String eval(String input) {
-        try {
-            String[] tokens = input.split(" ");
-            String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
-            String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "create" -> create(params);
-                case "list" -> list();
-                case "join" -> join(params);
-                case "observe" -> observe(params);
-                case "logout" -> logout();
-                case "quit" -> "quit";
-                default -> help();
-            };
-        } catch (Exception ex) {
-            return ex.getMessage();
-        }
+        String[] tokens = input.split(" ");
+        String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
+        String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        return switch (cmd) {
+            case "create" -> create(params);
+            case "list" -> list();
+            case "join" -> join(params);
+            case "observe" -> observe(params);
+            case "logout" -> logout();
+            case "quit" -> "quit";
+            default -> help();
+        };
     }
     public String create(String... params) throws RuntimeException {
         if (params.length == 1) {

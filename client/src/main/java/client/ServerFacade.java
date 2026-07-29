@@ -100,12 +100,7 @@ public class ServerFacade {
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws RuntimeException {
         var status = response.statusCode();
         if (status != 200) {
-            var body = response.body();
-            if (body == null) {
-                throw new RuntimeException("Error: Couldn't handle response -- empty body");
-            }
-
-            throw new RuntimeException("Error: Couldn't handle response -- other error" + status);
+            throw new RuntimeException(extractErrorMessage(response.body(), status));
         }
 
         if (responseClass != null) {
@@ -113,5 +108,22 @@ public class ServerFacade {
         }
 
         return null;
+    }
+
+    private String extractErrorMessage(String body, int status) {
+        if (body != null && !body.isBlank()) {
+            try {
+                var error = new Gson().fromJson(body, ErrorResponse.class);
+                if (error != null && error.message() != null && !error.message().isBlank()) {
+                    return error.message();
+                }
+            } catch (Exception ignored) {
+                // body was not the expected JSON shape; fall through to a generic message
+            }
+        }
+        return "Error: request failed (" + status + ")";
+    }
+
+    private record ErrorResponse(String message) {
     }
 }

@@ -33,8 +33,11 @@ public class Repl {
                 result = eval(line);
                 System.out.print(SET_TEXT_COLOR_LIGHT_GREY + result);
             } catch (Throwable e) {
-                var msg = e.toString();
-                System.out.print(msg);
+                var msg = e.getMessage();
+                if (msg == null || msg.isBlank()) {
+                    msg = "Error: something went wrong";
+                }
+                System.out.print(SET_TEXT_COLOR_RED + msg + RESET);
             }
         }
         System.out.println();
