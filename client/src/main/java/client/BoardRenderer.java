@@ -21,7 +21,10 @@ public class BoardRenderer {
         int colStep = white ? 1 : -1;
         StringBuilder sb = new StringBuilder();
 
+        sb.append(columnLabels(colStart, colEnd, colStep));
+
         for (int row = rowStart; row != rowEnd + rowStep; row += rowStep) {
+            sb.append(rankLabel(row));
             for (int col = colStart; col != colEnd + colStep; col += colStep) {
                 boolean lightSquare = (row + col) % 2 == 0;
                 String bg = lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
@@ -31,9 +34,29 @@ public class BoardRenderer {
                         SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK;
                 sb.append(bg).append(textColor).append(pieceImage).append(RESET);
             }
+            sb.append(rankLabel(row));
             sb.append("\n");
         }
+
+        sb.append(columnLabels(colStart, colEnd, colStep));
         return sb.toString();
+    }
+
+    private static String columnLabels(int colStart, int colEnd, int colStep) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(SET_BG_COLOR_DARK_GREY).append(SET_TEXT_COLOR_LIGHT_GREY);
+        sb.append(EMPTY);
+        for (int col = colStart; col != colEnd + colStep; col += colStep) {
+            char letter = (char) ('a' + (col - 1));
+            sb.append(" ").append(letter).append(" ");
+        }
+        sb.append(EMPTY);
+        sb.append(RESET).append("\n");
+        return sb.toString();
+    }
+
+    private static String rankLabel(int row) {
+        return SET_BG_COLOR_DARK_GREY + SET_TEXT_COLOR_LIGHT_GREY + " " + row + " " + RESET;
     }
 
     public static String getPieceImage(ChessPiece piece){
