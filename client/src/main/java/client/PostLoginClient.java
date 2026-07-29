@@ -49,24 +49,28 @@ public class PostLoginClient {
             throw new RuntimeException("Expected: create <GAMENAME> - a game");
         }
     }
-    public String list() throws RuntimeException {
+    private void refreshGameList() {
         Collection<GameData> games = facade.getGames(session.authToken());
         gameList.clear();
-        StringBuilder sb = new StringBuilder();
         int i = 1;
-        for (GameData game: games){
+        for (GameData game : games) {
             gameList.put(i, game);
-            String whiteName = game.whiteUsername();
-            String blackName = game.blackUsername();
-            sb.append(String.format("%d. %s: White: %s, Black: %s%n", i, game.gameName(), whiteName, blackName));
             i++;
         }
+    }
+    public String list() throws RuntimeException {
+        refreshGameList();
         if (gameList.isEmpty()){
             return "No games yet -- make one with create <GAMENAME>";
         }
-        else{
-            return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= gameList.size(); i++) {
+            GameData game = gameList.get(i);
+            String whiteName = game.whiteUsername() == null ? "(open)" : game.whiteUsername();
+            String blackName = game.blackUsername() == null ? "(open)" : game.blackUsername();
+            sb.append(String.format("%d. %s: White: %s, Black: %s%n", i, game.gameName(), whiteName, blackName));
         }
+        return sb.toString();
     }
     public String join(String... params) throws RuntimeException {
         if (params.length == 2) {
@@ -77,6 +81,7 @@ public class PostLoginClient {
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException("Color must be WHITE or BLACK");
             }
+            refreshGameList();
             GameData game = gameList.get(frontendGameID);
             if (game == null) {
                 throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
@@ -94,6 +99,7 @@ public class PostLoginClient {
     public String observe(String... params) throws RuntimeException{
         if (params.length == 1) {
             Integer frontendGameID = Integer.parseInt(params[0]);
+            refreshGameList();
             GameData game = gameList.get(frontendGameID);
             if (game == null) {
                 throw new RuntimeException("No game " + frontendGameID + ". Type 'list' first.");
