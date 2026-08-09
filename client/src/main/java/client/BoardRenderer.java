@@ -26,7 +26,7 @@ public class BoardRenderer {
         for (int row = rowStart; row != rowEnd + rowStep; row += rowStep) {
             sb.append(rankLabel(row));
             for (int col = colStart; col != colEnd + colStep; col += colStep) {
-                boolean lightSquare = (row + col) % 2 == 0;
+                boolean lightSquare = (row + col) % 2 != 0;
                 String bg = lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                 String pieceImage = getPieceImage(piece);
