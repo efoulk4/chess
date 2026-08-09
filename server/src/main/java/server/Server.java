@@ -15,6 +15,8 @@ import model.CreateGameResult;
 import model.JoinGameRequest;
 import model.ListGamesResult;
 import model.LoginRequest;
+import server.websocket.ConnectionManager;
+import server.websocket.WebSocketHandler;
 
 import java.util.Collection;
 import java.util.Map;
@@ -27,6 +29,9 @@ public class Server {
     private final AuthService authService;
     private final Gson gson;
 
+    private final ConnectionManager connections;
+    private final WebSocketHandler wsHandler;
+
     private final Javalin javalin;
 
     public Server() {
@@ -37,6 +42,9 @@ public class Server {
         gameService = new GameService(dataAccess, authService);
         gson = new Gson();
 
+        connections = new ConnectionManager();
+        wsHandler = new WebSocketHandler(dataAccess, connections);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .delete("/db", this::clearData)
                 .post("/user", this::addUser)
@@ -45,6 +53,7 @@ public class Server {
                 .get("/game", this::listGames)
                 .post("/game", this::createGame)
                 .put("/game", this::joinGame)
+                .ws("/ws", wsHandler::configure)
 
 
 
