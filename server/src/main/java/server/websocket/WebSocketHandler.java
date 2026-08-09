@@ -31,6 +31,7 @@ public class WebSocketHandler {
     }
 
     private void onMessage(WsMessageContext ctx) {
+        System.out.println("WS received: " + ctx.message());
 
     }
 
