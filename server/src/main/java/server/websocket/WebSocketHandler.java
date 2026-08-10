@@ -61,6 +61,9 @@ public class WebSocketHandler {
                     MakeMoveCommand makeMoveCommand = gson.fromJson(ctx.message(), MakeMoveCommand.class);
                     makeMove(ctx, makeMoveCommand, username);
                 }
+                case LEAVE -> {leave(ctx, base, username);
+
+                }
             }
         }
         catch (Exception e) {
@@ -77,6 +80,31 @@ public class WebSocketHandler {
     private void onError(WsErrorContext ctx) {
 
     }
+    private void leave(WsMessageContext ctx, UserGameCommand cmd, String username){
+        GameData gameData = dataAccess.getGame(cmd.getGameID());
+        if (gameData == null){
+            ctx.send(gson.toJson(new ErrorMessage("Error: No such game.")));
+            return;
+        }
+        GameData newGameData = null;
+        if (Objects.equals(gameData.whiteUsername(), username)){
+            newGameData =
+            new GameData(gameData.gameID(),null, gameData.blackUsername(),
+                    gameData.gameName(), gameData.game());
+        }
+        if (Objects.equals(gameData.blackUsername(), username)){
+            newGameData =
+            new GameData(gameData.gameID(), gameData.whiteUsername(), null,
+            gameData.gameName(), gameData.game());
+        }
+        if (newGameData!= null) {
+            dataAccess.updateGame(newGameData);
+        }
+        connections.remove(gameData.gameID(), cmd.getAuthToken());
+        connections.broadcast(gameData.gameID(), cmd.getAuthToken(),
+                gson.toJson(new NotificationMessage(username + " left the game.")));
+    }
+
     private void makeMove(WsMessageContext ctx, MakeMoveCommand cmd, String username) {
         GameData gameData = dataAccess.getGame(cmd.getGameID());
         if (gameData == null) {
