@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import exceptions.ResponseException;
 import jakarta.websocket.*;
 import jakarta.websocket.Session;
+import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -44,6 +45,20 @@ public class WebsocketFacade extends Endpoint {
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        }
+    }
+    public void send(UserGameCommand command) throws ResponseException {
+        try {
+            wsSession.getBasicRemote().sendText(gson.toJson(command));
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+        }
+    }
+    public void close() throws ResponseException {
+        try {
+            wsSession.close();
+        } catch (Exception e) {
+            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
         }
     }
 
