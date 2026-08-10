@@ -1,5 +1,9 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import io.javalin.websocket.WsCloseContext;
@@ -9,7 +13,9 @@ import io.javalin.websocket.WsErrorContext;
 import io.javalin.websocket.WsMessageContext;
 import model.AuthData;
 import model.GameData;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
@@ -48,6 +54,10 @@ public class WebSocketHandler {
 
         switch (base.getCommandType()){
             case CONNECT -> {connect(ctx, base, username);}
+            case MAKE_MOVE -> {
+                MakeMoveCommand makeMoveCommand = gson.fromJson(ctx.message(), MakeMoveCommand.class);
+                makeMove(ctx, makeMoveCommand, username);
+            }
 
         };
 
@@ -61,11 +71,64 @@ public class WebSocketHandler {
     private void onError(WsErrorContext ctx) {
 
     }
+    private void makeMove(WsMessageContext ctx, MakeMoveCommand cmd, String username) {
+        GameData gameData = dataAccess.getGame(cmd.getGameID());
+        if (gameData == null) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: No such game.")));
+            return;
+        }
+        ChessGame game = gameData.game();
+        if (game.gameIsOver()) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: Game Already Over.")));
+            return;
+        }
+        ChessGame.TeamColor role = null;
+        if (Objects.equals(gameData.whiteUsername(), username)) {
+            role = ChessGame.TeamColor.WHITE;
+        }
+        if (Objects.equals(gameData.blackUsername(), username)) {
+            role = ChessGame.TeamColor.BLACK;
+        }
+        if (role == null) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: Oberservers cannot make moves.")));
+            return;
+        }
+        if (game.getTeamTurn() != role) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: Cannot move out of turn.")));
+            return;
+        }
+            try {
+                game.makeMove(cmd.getMove());
+            } catch (InvalidMoveException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+            dataAccess.updateGame(gameData);
+            connections.broadcast(gameData.gameID(), null,
+                    gson.toJson(new LoadGameMessage(game)));
+            String piece = String.valueOf(game.getBoard().getPiece(cmd.getMove().getStartPosition()));
+            String move = chessMoveToString(cmd.getMove());
+            connections.broadcast(gameData.gameID(), cmd.getAuthToken(),
+                    gson.toJson(new NotificationMessage(username + " moved " + piece + " from " + move)));
+
+    }
+    String chessMoveToString(ChessMove move){
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        String promo = "";
+        if (move.getPromotionPiece() != null){
+            promo = " " + move.getPromotionPiece();
+        }
+        return chessPositionToString(start) + " to " + chessPositionToString(end) + promo + ".";
+    }
+    String chessPositionToString(ChessPosition pos){
+            return "" + (char)('a' + pos.getColumn() - 1) + pos.getRow();
+    }
+
 
     private void connect(WsMessageContext ctx, UserGameCommand cmd, String username) {
         GameData gameData = dataAccess.getGame(cmd.getGameID());
         if (gameData == null){
-            ctx.send(new RuntimeException("Error: No such game."));
+            ctx.send(gson.toJson(new ErrorMessage("Error: No such game.")));
             return;
         }
         connections.add(cmd.getGameID(), cmd.getAuthToken(), username, ctx);

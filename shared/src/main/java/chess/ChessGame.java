@@ -14,11 +14,18 @@ import java.util.Objects;
 public class ChessGame {
     ChessBoard board;
     TeamColor teamTurn;
+    TeamColor resigned = null;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
+    }
+
+    public boolean gameIsOver(){
+        return resigned != null ||
+                isInStalemate(teamTurn) ||
+                isInCheckmate(teamTurn);
     }
 
     /**
