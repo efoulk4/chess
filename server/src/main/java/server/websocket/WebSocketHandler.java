@@ -62,8 +62,8 @@ public class WebSocketHandler {
                     makeMove(ctx, makeMoveCommand, username);
                 }
                 case LEAVE -> {leave(ctx, base, username);
-
                 }
+                case RESIGN -> resign(ctx, base, username);
             }
         }
         catch (Exception e) {
@@ -74,10 +74,37 @@ public class WebSocketHandler {
     }
 
     private void onClose(WsCloseContext ctx) {
-
+        connections.removeAll(ctx);
     }
 
     private void onError(WsErrorContext ctx) {
+
+    }
+    private void resign(WsMessageContext ctx, UserGameCommand cmd, String username){
+        GameData gameData = dataAccess.getGame(cmd.getGameID());
+        if (gameData == null){
+            ctx.send(gson.toJson(new ErrorMessage("Error: No such game.")));
+            return;
+        }
+        if (gameData.game().gameIsOver()){
+            ctx.send(gson.toJson(new ErrorMessage("Error: Game Already Over.")));
+            return;
+        }
+        ChessGame.TeamColor role = null;
+        if (Objects.equals(gameData.whiteUsername(), username)) {
+            role = ChessGame.TeamColor.WHITE;
+        } else if (Objects.equals(gameData.blackUsername(), username)) {
+            role = ChessGame.TeamColor.BLACK;
+        }
+        if (role == null) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: Observers shan't be resigning.")));
+            return;
+        }
+        gameData.game().setResigned(role);
+        dataAccess.updateGame(gameData);
+        connections.broadcast(gameData.gameID(), null,
+                gson.toJson(new NotificationMessage(username + " resigned.")));
+
 
     }
     private void leave(WsMessageContext ctx, UserGameCommand cmd, String username){
@@ -124,7 +151,7 @@ public class WebSocketHandler {
             role = ChessGame.TeamColor.BLACK;
         }
         if (role == null) {
-            ctx.send(gson.toJson(new ErrorMessage("Error: Oberservers cannot make moves.")));
+            ctx.send(gson.toJson(new ErrorMessage("Error: Observers cannot make moves.")));
             return;
         }
         if (game.getTeamTurn() != role) {

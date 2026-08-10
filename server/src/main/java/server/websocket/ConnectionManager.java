@@ -20,6 +20,16 @@ public class ConnectionManager {
         }
         inner.remove(authToken);
     }
+    public void removeAll(WsContext ctx) {
+        for (var inner : outer.values()) {
+            for (var entry : inner.entrySet()) {
+                if (entry.getValue().session() == ctx) {
+                    inner.remove(entry.getKey());
+                    return;
+                }
+            }
+        }
+    }
     public void broadcast(Integer gameID, String excludedAuthToken, String message){
         ConcurrentHashMap<String, Connection> inner = outer.get(gameID);
         if (inner == null){
