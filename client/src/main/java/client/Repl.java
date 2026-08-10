@@ -18,12 +18,13 @@ public class Repl implements ServerMessageHandler {
     private final PreLoginClient preLogin;
     private final PostLoginClient postLogin;
     private final GameClient gameClient;
+    Scanner scanner = new Scanner(System.in);
 
     public Repl(String serverUrl) {
         this.facade = new ServerFacade(serverUrl);
         this.preLogin = new PreLoginClient(facade, session);
         this.postLogin = new PostLoginClient(facade, session, this);
-        this.gameClient = new GameClient(facade, session);
+        this.gameClient = new GameClient(facade, session, scanner);
         session.setServerURL(serverUrl);
     }
 
@@ -31,7 +32,6 @@ public class Repl implements ServerMessageHandler {
         System.out.println(" Welcome to Chess. Sign in to start.");
         System.out.print(preLogin.help());
 
-        Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
