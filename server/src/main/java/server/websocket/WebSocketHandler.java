@@ -107,7 +107,8 @@ public class WebSocketHandler {
             try {
                 game.makeMove(cmd.getMove());
             } catch (InvalidMoveException e) {
-                ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
+                ctx.send(gson.toJson(new ErrorMessage("Error: " + e.getMessage())));
+                return;
             }
             dataAccess.updateGame(gameData);
             connections.broadcast(gameData.gameID(), null,
