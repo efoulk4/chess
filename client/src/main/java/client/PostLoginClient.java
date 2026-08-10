@@ -110,7 +110,6 @@ public class PostLoginClient {
             session.setGameID(game.gameID());
             session.setState(State.GAME);
             session.setColor(null);
-            session.setState(State.GAME);
             WebsocketFacade wsFacade = new WebsocketFacade(session.getServerURL(),serverMessageHandler);
             session.setFacade(wsFacade);
             wsFacade.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(),game.gameID()));

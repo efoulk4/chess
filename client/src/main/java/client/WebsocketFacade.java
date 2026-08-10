@@ -44,21 +44,24 @@ public class WebsocketFacade extends Endpoint {
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    "Error: could not connect to the game server (" + ex.getMessage() + ")");
         }
     }
     public void send(UserGameCommand command) throws ResponseException {
         try {
             wsSession.getBasicRemote().sendText(gson.toJson(command));
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    "Error: could not reach the game server (" + e.getMessage() + ")");
         }
     }
     public void close() throws ResponseException {
         try {
             wsSession.close();
         } catch (Exception e) {
-            throw new ResponseException(ResponseException.Code.ServerError, e.getMessage());
+            throw new ResponseException(ResponseException.Code.ServerError,
+                    "Error: could not close the connection cleanly (" + e.getMessage() + ")");
         }
     }
 
