@@ -22,6 +22,10 @@ public class ChessGame {
         teamTurn = TeamColor.WHITE;
     }
 
+    public void setResigned(TeamColor team){
+        resigned = team;
+    }
+
     public boolean gameIsOver(){
         return resigned != null ||
                 isInStalemate(teamTurn) ||
