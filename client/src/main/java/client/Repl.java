@@ -1,11 +1,17 @@
 package client;
 
+import chess.ChessGame;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
 
-public class Repl {
+public class Repl implements ServerMessageHandler {
     private final ServerFacade facade;
     private final Session session = new Session();
     private final PreLoginClient preLogin;
@@ -54,5 +60,34 @@ public class Repl {
             case GAME -> gameClient.eval(input);
         };
     }
+
+    @Override
+    public void notify(ServerMessage serverMessage) {
+        switch (serverMessage.getServerMessageType()){
+            case LOAD_GAME -> {
+                LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
+                handleLoadGame(loadGameMessage);}
+            case NOTIFICATION -> {
+                NotificationMessage notificationMessage = (NotificationMessage) serverMessage;
+                handleNotification(notificationMessage);}
+            case ERROR -> {
+                ErrorMessage errorMessage = (ErrorMessage) serverMessage;
+                handleError(errorMessage);}
+            }
+        }
+
+    private void handleLoadGame(LoadGameMessage loadGameMessage){
+        ChessGame game =  loadGameMessage.getChessGame();
+        
+    }
+
+    private void handleNotification(NotificationMessage notificationMessage){
+
+    }
+
+    private void handleError(ErrorMessage errorMessage){
+
+    }
 }
+
 

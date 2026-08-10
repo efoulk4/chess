@@ -3,5 +3,5 @@ package client;
 import websocket.messages.ServerMessage;
 
 public interface ServerMessageHandler {
-    void notify(ServerMessage notification);
+    void notify(ServerMessage serverMessage);
 }
