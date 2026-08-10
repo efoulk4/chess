@@ -212,8 +212,32 @@ public class ChessGame {
             }
         }
         resetEnpassant(teamTurn);
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN &&
+                Math.abs(move.getEndPosition().getRow() - move.getStartPosition().getRow()) == 2){
+            flagEnpassantNeighbors(move.getEndPosition(), teamTurn);
+        }
         newPiece.setHasMoved();
         teamTurn = flipTeamColor(teamTurn);
+    }
+
+    private void flagEnpassantNeighbors(ChessPosition landedOn, TeamColor mover){
+        int dir = (mover == TeamColor.WHITE) ? 1 : -1;
+        ChessPosition captureSquare =
+                new ChessPosition(landedOn.getRow() - dir, landedOn.getColumn());
+        int[] sides = {-1, 1};
+        for (int side : sides){
+            int column = landedOn.getColumn() + side;
+            if (column < 1 || column > 8){
+                continue;
+            }
+            ChessPiece neighbor = board.getPiece(new ChessPosition(landedOn.getRow(), column));
+            if (neighbor != null &&
+                    neighbor.getPieceType() == ChessPiece.PieceType.PAWN &&
+                    neighbor.getTeamColor() != mover){
+                neighbor.setEnpassantAvailable(true);
+                neighbor.setEnpassantPosition(captureSquare);
+            }
+        }
     }
 
     public void resetEnpassant(TeamColor team){

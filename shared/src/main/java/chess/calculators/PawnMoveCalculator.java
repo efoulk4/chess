@@ -36,9 +36,6 @@ public class PawnMoveCalculator implements PieceMoveCalculator{
             else{
                 break;
             }
-            if (i ==2 ){
-                handleEnpassant(board, curPos, dir);
-            }
         }
         /*
         CAPTURING
@@ -55,19 +52,5 @@ public class PawnMoveCalculator implements PieceMoveCalculator{
         }
 
         return legalMoves;
-    }
-    public void handleEnpassant(ChessBoard board, ChessPosition resultantPosition, int dir){
-        ChessPosition left = new ChessPosition(resultantPosition.getRow(), resultantPosition.getColumn()-1);
-        ChessPosition right = new ChessPosition(resultantPosition.getRow(), resultantPosition.getColumn()+1);
-        ChessPosition enpassantSquare =
-                new ChessPosition(resultantPosition.getRow()-dir, resultantPosition.getColumn());
-        for (ChessPosition pos : new ChessPosition[]{left, right}){
-            if(!validateInBounds(pos)){continue;}
-            ChessPiece piece = board.getPiece(pos);
-            if (piece != null && piece.getPieceType() == ChessPiece.PieceType.PAWN){
-                piece.setEnpassantAvailable(true);
-                piece.setEnpassantPosition(enpassantSquare);
-            }
-        }
     }
 }
