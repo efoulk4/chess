@@ -73,7 +73,9 @@ public class GameClient {
             if (pieceType == ChessPiece.PieceType.KING || pieceType == ChessPiece.PieceType.PAWN){
                 throw new RuntimeException("Promotion must be QUEEN, ROOK, BISHOP, or KNIGHT");
             }
-            else return pieceType;
+            else {
+                return pieceType;
+            }
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Promotion must be QUEEN, ROOK, BISHOP, or KNIGHT");
         }
