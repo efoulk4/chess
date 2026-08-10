@@ -1,7 +1,9 @@
 package client;
 
-import chess.ChessGame;
+import chess.*;
 import exceptions.ResponseException;
+import model.CreateGameRequest;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
@@ -27,10 +29,44 @@ public class GameClient {
         return switch (cmd) {
             case "redraw" -> BoardRenderer.draw(session.getGame().getBoard(), session.color());
             case "resign" -> resign();
+            case "move" -> move(params);
             case "leave" -> leave();
             case "quit" -> "quit";
             default -> help();
         };
+    }
+
+    private String move(String ...params) throws ResponseException{
+        if (params.length == 2 || params.length == 3) {
+            String coord1 = params[0];
+            String coord2 = params[1];
+            ChessPiece.PieceType promotion;
+            promotion = params.length == 3 ? stringToPiece(params[2]) : null;
+            ChessPosition cp1 = stringToPosition(coord1);
+            ChessPosition cp2 = stringToPosition(coord2);
+            ChessMove chessMove = new ChessMove(cp1, cp2, promotion);
+            session.getFacade().send(
+                new MakeMoveCommand(session.authToken(), session.gameID(), chessMove));
+            return "";
+        } else {
+            throw new RuntimeException("Expected: move <CHESS COORDINATE> <CHESS COORDINATE>");
+        }
+    }
+    private ChessPiece.PieceType stringToPiece(String piece){
+        try {
+            return ChessPiece.PieceType.valueOf(piece.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Promotion must be QUEEN, ROOK, BISHOP, or KNIGHT");
+        }
+    }
+    private ChessPosition stringToPosition(String square){
+        String lowerCase = square.toLowerCase();
+        int col = lowerCase.charAt(0) - 'a' + 1;
+        int row = lowerCase.charAt(1) - '0';
+        if (lowerCase.length() != 2 || col < 1 || col > 8 || row < 1 || row > 8){
+            throw new RuntimeException("Input only valid positions on the chess board");
+        }
+        return new ChessPosition(row, col);
     }
     private String resign() throws ResponseException {
 
