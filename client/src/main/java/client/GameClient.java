@@ -17,7 +17,7 @@ public class GameClient {
         String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
-            case "redraw" -> BoardRenderer.draw(new ChessGame().getBoard(), session.color());
+            case "redraw" -> BoardRenderer.draw(session.getGame().getBoard(), session.color());
             case "leave" -> leave();
             case "quit" -> "quit";
             default -> help();

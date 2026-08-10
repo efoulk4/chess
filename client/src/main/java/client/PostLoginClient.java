@@ -1,12 +1,14 @@
 package client;
 
 import chess.ChessGame;
+import exceptions.ResponseException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.JoinGameRequest;
+import websocket.commands.UserGameCommand;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -17,11 +19,13 @@ public class PostLoginClient {
     private final ServerFacade facade;
     private final Session session;
     private final Map<Integer, GameData> gameList = new HashMap<>();
-    public PostLoginClient(ServerFacade facade, Session session) {
+    private final ServerMessageHandler serverMessageHandler;
+    public PostLoginClient(ServerFacade facade, Session session, ServerMessageHandler serverMessageHandler) {
         this.facade = facade;
         this.session = session;
+        this.serverMessageHandler = serverMessageHandler;
     }
-    public String eval(String input) {
+    public String eval(String input) throws ResponseException {
         String[] tokens = input.split(" ");
         String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
@@ -68,7 +72,7 @@ public class PostLoginClient {
         }
         return sb.toString();
     }
-    public String join(String... params) throws RuntimeException {
+    public String join(String... params) throws RuntimeException, ResponseException {
         if (params.length == 2) {
             int frontendGameID = Integer.parseInt(params[0]);
             ChessGame.TeamColor color;
@@ -87,12 +91,15 @@ public class PostLoginClient {
             session.setGameID(game.gameID());
             session.setColor(color);
             session.setState(State.GAME);
-            return BoardRenderer.draw(game.game().getBoard(), color);
+            WebsocketFacade wsFacade = new WebsocketFacade(session.getServerURL(),serverMessageHandler);
+            session.setFacade(wsFacade);
+            wsFacade.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(),game.gameID()));
+            return "";
         } else {
             throw new RuntimeException("Expected: join <GAMEID> <WHITE|BLACK>");
         }
     }
-    public String observe(String... params) throws RuntimeException{
+    public String observe(String... params) throws RuntimeException, ResponseException {
         if (params.length == 1) {
             Integer frontendGameID = Integer.parseInt(params[0]);
             refreshGameList();
@@ -103,7 +110,11 @@ public class PostLoginClient {
             session.setGameID(game.gameID());
             session.setState(State.GAME);
             session.setColor(null);
-            return BoardRenderer.draw(game.game().getBoard(), ChessGame.TeamColor.WHITE);
+            session.setState(State.GAME);
+            WebsocketFacade wsFacade = new WebsocketFacade(session.getServerURL(),serverMessageHandler);
+            session.setFacade(wsFacade);
+            wsFacade.send(new UserGameCommand(UserGameCommand.CommandType.CONNECT, session.authToken(),game.gameID()));
+            return "";
         } else {
             throw new RuntimeException("Expected: observe <GAMEID>");
         }

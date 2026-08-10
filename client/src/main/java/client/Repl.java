@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessGame;
+import exceptions.ResponseException;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
@@ -21,8 +22,9 @@ public class Repl implements ServerMessageHandler {
     public Repl(String serverUrl) {
         this.facade = new ServerFacade(serverUrl);
         this.preLogin = new PreLoginClient(facade, session);
-        this.postLogin = new PostLoginClient(facade, session);
+        this.postLogin = new PostLoginClient(facade, session, this);
         this.gameClient = new GameClient(facade, session);
+        session.setServerURL(serverUrl);
     }
 
     public void run() {
@@ -53,7 +55,7 @@ public class Repl implements ServerMessageHandler {
         System.out.print("\n" + RESET + ">>> " + SET_TEXT_COLOR_BLUE);
     }
 
-    public String eval(String input) {
+    public String eval(String input) throws ResponseException {
         return switch (session.getState()) {
             case PRELOGIN -> preLogin.eval(input);
             case POSTLOGIN -> postLogin.eval(input);
@@ -74,19 +76,21 @@ public class Repl implements ServerMessageHandler {
                 ErrorMessage errorMessage = (ErrorMessage) serverMessage;
                 handleError(errorMessage);}
             }
+            printPrompt();
         }
 
     private void handleLoadGame(LoadGameMessage loadGameMessage){
         ChessGame game =  loadGameMessage.getChessGame();
-        
+        session.setGame(game);
+        System.out.print(BoardRenderer.draw(session.getGame().getBoard(), session.color()));
     }
 
     private void handleNotification(NotificationMessage notificationMessage){
-
+            System.out.print(SET_TEXT_COLOR_LIGHT_GREY + notificationMessage.getMessage() + RESET);
     }
 
     private void handleError(ErrorMessage errorMessage){
-
+        System.out.print(SET_TEXT_COLOR_RED + errorMessage.getErrorMessage() + RESET);
     }
 }
 
