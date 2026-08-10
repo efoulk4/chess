@@ -99,7 +99,7 @@ public class GameClient {
             if (Objects.equals(result, "y")||Objects.equals(result, "yes")){
                 session.getFacade().send(
                 new UserGameCommand(UserGameCommand.CommandType.RESIGN, session.authToken(), session.gameID()));
-                return "Game resigned";
+                return "";
             }
             else {
                 return "Resignation cancelled";

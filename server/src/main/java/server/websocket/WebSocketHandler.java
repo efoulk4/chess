@@ -2,6 +2,7 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
@@ -158,12 +159,18 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(new ErrorMessage("Error: Cannot move out of turn.")));
             return;
         }
-        String piece = game.getBoard().getPiece(cmd.getMove().getStartPosition())
-                .getPieceType().toString().toLowerCase();
+        ChessPiece movingPiece = game.getBoard().getPiece(cmd.getMove().getStartPosition());
+        if (movingPiece == null) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: There is no piece on that square.")));
+            return;
+        }
+        String piece = movingPiece.getPieceType().toString().toLowerCase();
             try {
                 game.makeMove(cmd.getMove());
             } catch (InvalidMoveException e) {
-                ctx.send(gson.toJson(new ErrorMessage("Error: " + e.getMessage())));
+                String reason = (e.getMessage() == null || e.getMessage().isBlank())
+                        ? "that is not a legal move." : e.getMessage();
+                ctx.send(gson.toJson(new ErrorMessage("Error: " + reason)));
                 return;
             }
             dataAccess.updateGame(gameData);
