@@ -158,7 +158,8 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(new ErrorMessage("Error: Cannot move out of turn.")));
             return;
         }
-        String piece = String.valueOf(game.getBoard().getPiece(cmd.getMove().getStartPosition()));
+        String piece = game.getBoard().getPiece(cmd.getMove().getStartPosition())
+                .getPieceType().toString().toLowerCase();
             try {
                 game.makeMove(cmd.getMove());
             } catch (InvalidMoveException e) {
