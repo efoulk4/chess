@@ -18,6 +18,7 @@ import model.LoginRequest;
 import server.websocket.ConnectionManager;
 import server.websocket.WebSocketHandler;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Map;
 
@@ -45,7 +46,11 @@ public class Server {
         connections = new ConnectionManager();
         wsHandler = new WebSocketHandler(dataAccess, connections);
 
-        javalin = Javalin.create(config -> config.staticFiles.add("web"))
+        javalin = Javalin.create(config -> {
+                    config.staticFiles.add("web");
+                    config.jetty.modifyWebSocketServletFactory(factory ->
+                            factory.setIdleTimeout(Duration.ofMinutes(30)));
+                })
                 .delete("/db", this::clearData)
                 .post("/user", this::addUser)
                 .post("/session", this::loginUser)
