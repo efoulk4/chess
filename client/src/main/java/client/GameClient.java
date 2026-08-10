@@ -11,11 +11,9 @@ import java.util.*;
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
 public class GameClient {
-    private final ServerFacade facade;
     private final Session session;
     private final Scanner scanner;
-    public GameClient(ServerFacade facade, Session session, Scanner scanner) {
-        this.facade = facade;
+    public GameClient(Session session, Scanner scanner) {
         this.session = session;
         this.scanner = scanner;
     }
@@ -71,16 +69,23 @@ public class GameClient {
     }
     private ChessPiece.PieceType stringToPiece(String piece){
         try {
-            return ChessPiece.PieceType.valueOf(piece.toUpperCase());
+            ChessPiece.PieceType pieceType = ChessPiece.PieceType.valueOf(piece.toUpperCase());
+            if (pieceType == ChessPiece.PieceType.KING || pieceType == ChessPiece.PieceType.PAWN){
+                throw new RuntimeException("Promotion must be QUEEN, ROOK, BISHOP, or KNIGHT");
+            }
+            else return pieceType;
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Promotion must be QUEEN, ROOK, BISHOP, or KNIGHT");
         }
     }
     private ChessPosition stringToPosition(String square){
         String lowerCase = square.toLowerCase();
+        if (lowerCase.length() != 2){
+            throw new RuntimeException("Input only valid positions on the chess board");
+        }
         int col = lowerCase.charAt(0) - 'a' + 1;
         int row = lowerCase.charAt(1) - '0';
-        if (lowerCase.length() != 2 || col < 1 || col > 8 || row < 1 || row > 8){
+        if (col < 1 || col > 8 || row < 1 || row > 8){
             throw new RuntimeException("Input only valid positions on the chess board");
         }
         return new ChessPosition(row, col);

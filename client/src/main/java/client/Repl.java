@@ -24,7 +24,7 @@ public class Repl implements ServerMessageHandler {
         this.facade = new ServerFacade(serverUrl);
         this.preLogin = new PreLoginClient(facade, session);
         this.postLogin = new PostLoginClient(facade, session, this);
-        this.gameClient = new GameClient(facade, session, scanner);
+        this.gameClient = new GameClient(session, scanner);
         session.setServerURL(serverUrl);
     }
 
