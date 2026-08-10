@@ -7,6 +7,13 @@ import io.javalin.websocket.WsConfig;
 import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsErrorContext;
 import io.javalin.websocket.WsMessageContext;
+import model.AuthData;
+import model.GameData;
+import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
+
+import java.util.Objects;
 
 public class WebSocketHandler {
     private final DataAccess dataAccess;
@@ -31,7 +38,19 @@ public class WebSocketHandler {
     }
 
     private void onMessage(WsMessageContext ctx) {
-        System.out.println("WS received: " + ctx.message());
+        UserGameCommand base = gson.fromJson(ctx.message(), UserGameCommand.class);
+        AuthData auth = dataAccess.getAuth(base.getAuthToken());
+        if (auth == null){
+            ctx.send((gson.toJson(new RuntimeException("Error: Invalid Auth"))));
+            return;
+        }
+        String username = auth.username();
+
+        switch (base.getCommandType()){
+            case CONNECT -> {connect(ctx, base, username);}
+
+        };
+
 
     }
 
@@ -40,6 +59,24 @@ public class WebSocketHandler {
     }
 
     private void onError(WsErrorContext ctx) {
+
+    }
+
+    private void connect(WsMessageContext ctx, UserGameCommand cmd, String username) {
+        GameData gameData = dataAccess.getGame(cmd.getGameID());
+        if (gameData == null){
+            ctx.send(new RuntimeException("Error: No such game."));
+            return;
+        }
+        connections.add(cmd.getGameID(), cmd.getAuthToken(), username, ctx);
+        ctx.send(gson.toJson(new LoadGameMessage(gameData.game())));
+
+        String role = "an observer";
+        if (Objects.equals(gameData.whiteUsername(), username)){role = "white";}
+        if (Objects.equals(gameData.blackUsername(), username)){role = "black";}
+        String text = username + " joined as" + role;
+        connections.broadcast(gameData.gameID(), cmd.getAuthToken(), gson.toJson(new NotificationMessage(text)));
+
 
     }
 }
