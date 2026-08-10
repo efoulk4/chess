@@ -44,22 +44,28 @@ public class WebSocketHandler {
     }
 
     private void onMessage(WsMessageContext ctx) {
-        UserGameCommand base = gson.fromJson(ctx.message(), UserGameCommand.class);
-        AuthData auth = dataAccess.getAuth(base.getAuthToken());
-        if (auth == null){
-            ctx.send((gson.toJson(new RuntimeException("Error: Invalid Auth"))));
-            return;
-        }
-        String username = auth.username();
-
-        switch (base.getCommandType()){
-            case CONNECT -> {connect(ctx, base, username);}
-            case MAKE_MOVE -> {
-                MakeMoveCommand makeMoveCommand = gson.fromJson(ctx.message(), MakeMoveCommand.class);
-                makeMove(ctx, makeMoveCommand, username);
+        try {
+            UserGameCommand base = gson.fromJson(ctx.message(), UserGameCommand.class);
+            AuthData auth = dataAccess.getAuth(base.getAuthToken());
+            if (auth == null) {
+                ctx.send(gson.toJson(new ErrorMessage("Error: Invalid Auth")));
+                return;
             }
+            String username = auth.username();
 
-        };
+            switch (base.getCommandType()) {
+                case CONNECT -> {
+                    connect(ctx, base, username);
+                }
+                case MAKE_MOVE -> {
+                    MakeMoveCommand makeMoveCommand = gson.fromJson(ctx.message(), MakeMoveCommand.class);
+                    makeMove(ctx, makeMoveCommand, username);
+                }
+            }
+        }
+        catch (Exception e) {
+            ctx.send(gson.toJson(new ErrorMessage("Error: " + e.getMessage())));
+        }
 
 
     }
@@ -97,18 +103,34 @@ public class WebSocketHandler {
             ctx.send(gson.toJson(new ErrorMessage("Error: Cannot move out of turn.")));
             return;
         }
+        String piece = String.valueOf(game.getBoard().getPiece(cmd.getMove().getStartPosition()));
             try {
                 game.makeMove(cmd.getMove());
             } catch (InvalidMoveException e) {
-                throw new RuntimeException(e.getMessage());
+                ctx.send(gson.toJson(new ErrorMessage(e.getMessage())));
             }
             dataAccess.updateGame(gameData);
             connections.broadcast(gameData.gameID(), null,
                     gson.toJson(new LoadGameMessage(game)));
-            String piece = String.valueOf(game.getBoard().getPiece(cmd.getMove().getStartPosition()));
             String move = chessMoveToString(cmd.getMove());
             connections.broadcast(gameData.gameID(), cmd.getAuthToken(),
                     gson.toJson(new NotificationMessage(username + " moved " + piece + " from " + move)));
+            ChessGame.TeamColor opponent = game.getTeamTurn();
+            String status = null;
+            String opponentName;
+            if (role  == ChessGame.TeamColor.WHITE){
+                opponentName = gameData.blackUsername();
+            }
+            else{
+                opponentName = gameData.whiteUsername();
+            }
+            if (game.isInCheckmate(opponent)){status = opponentName  + " is in checkmate";}
+            else if (game.isInStalemate(opponent)){status = "Stalemate";}
+            else if (game.isInCheck(opponent)){status = opponentName + " is in check";}
+            if (status != null){
+                connections.broadcast(gameData.gameID(), null,
+                        gson.toJson(new NotificationMessage(status)));
+            }
 
     }
     String chessMoveToString(ChessMove move){
@@ -137,7 +159,7 @@ public class WebSocketHandler {
         String role = "an observer";
         if (Objects.equals(gameData.whiteUsername(), username)){role = "white";}
         if (Objects.equals(gameData.blackUsername(), username)){role = "black";}
-        String text = username + " joined as" + role;
+        String text = username + " joined as " + role;
         connections.broadcast(gameData.gameID(), cmd.getAuthToken(), gson.toJson(new NotificationMessage(text)));
 
 
