@@ -65,6 +65,7 @@ public class Repl implements ServerMessageHandler {
 
     @Override
     public void notify(ServerMessage serverMessage) {
+        System.out.print(RESET + "\n");
         switch (serverMessage.getServerMessageType()){
             case LOAD_GAME -> {
                 LoadGameMessage loadGameMessage = (LoadGameMessage) serverMessage;
