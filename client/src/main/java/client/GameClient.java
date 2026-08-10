@@ -6,9 +6,7 @@ import model.CreateGameRequest;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static ui.EscapeSequences.SET_TEXT_COLOR_LIGHT_GREY;
 
@@ -27,13 +25,32 @@ public class GameClient {
         String cmd = (tokens.length > 0) ? tokens[0].toLowerCase() : "help";
         String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
         return switch (cmd) {
-            case "redraw" -> BoardRenderer.draw(session.getGame().getBoard(), session.color());
+            case "redraw" -> BoardRenderer.draw(session.getGame().getBoard(), session.color(), null, null);
             case "resign" -> resign();
             case "move" -> move(params);
+            case "highlight" -> highlight(params);
             case "leave" -> leave();
             case "quit" -> "quit";
             default -> help();
         };
+    }
+    private String highlight(String ...params) throws ResponseException{
+        if (params.length == 1){
+            String coord = params[0].toLowerCase();
+            ChessPosition pos = stringToPosition(coord);
+            if (session.getGame().getBoard().getPiece(pos) == null){
+                return "No piece there!";
+            }
+            Collection<ChessMove> legalMoves = session.getGame().validMoves(pos);
+            Collection<ChessPosition> endSquares = new ArrayList<>();
+            for (ChessMove move : legalMoves) {
+                endSquares.add(move.getEndPosition());
+            }
+            return BoardRenderer.draw(session.getGame().getBoard(), session.color(), endSquares, pos);
+        }
+        else{
+            throw new RuntimeException("Expected: highlight <CHESS COORDINATE>");
+        }
     }
 
     private String move(String ...params) throws ResponseException{
@@ -84,11 +101,15 @@ public class GameClient {
             }
 
     }
-    private String leave() {
+    private String leave() throws ResponseException {
+        session.getFacade().send(new UserGameCommand(UserGameCommand.CommandType.LEAVE,
+                                                    session.authToken(),
+                                                    session.gameID()));
+        session.getFacade().close();
         session.setState(State.POSTLOGIN);
         session.setGameID(null);
         session.setColor(null);
-        return "Left the game.";
+        return "Successfully left the game";
     }
 
     public String help() {

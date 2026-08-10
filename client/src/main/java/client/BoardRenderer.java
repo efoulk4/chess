@@ -5,11 +5,16 @@ import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
 
+import java.util.Collection;
+
 import static ui.EscapeSequences.*;
 
 public class BoardRenderer {
 
-    public static String draw(ChessBoard board, ChessGame.TeamColor perspective){
+    public static String draw(ChessBoard board,
+                              ChessGame.TeamColor perspective,
+                              Collection<ChessPosition> highlights,
+                              ChessPosition origin){
 
         boolean white = (perspective != ChessGame.TeamColor.BLACK);
         int rowStart = white ? 8 : 1;
@@ -26,9 +31,17 @@ public class BoardRenderer {
         for (int row = rowStart; row != rowEnd + rowStep; row += rowStep) {
             sb.append(rankLabel(row));
             for (int col = colStart; col != colEnd + colStep; col += colStep) {
+                ChessPosition square = new ChessPosition(row, col);
                 boolean lightSquare = (row + col) % 2 != 0;
-                String bg = lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+                String bg;
+                if (square.equals(origin)) {
+                    bg = SET_BG_COLOR_YELLOW;}
+                else if (highlights != null && highlights.contains(square)) {
+                    bg = lightSquare ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+                } else {
+                    bg = lightSquare ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
+                }
+                ChessPiece piece = board.getPiece(square);
                 String pieceImage = getPieceImage(piece);
                 String textColor = (piece != null && piece.getTeamColor() == ChessGame.TeamColor.WHITE) ?
                         SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK;

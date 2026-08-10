@@ -83,7 +83,7 @@ public class Repl implements ServerMessageHandler {
     private void handleLoadGame(LoadGameMessage loadGameMessage){
         ChessGame game =  loadGameMessage.getChessGame();
         session.setGame(game);
-        System.out.print(BoardRenderer.draw(session.getGame().getBoard(), session.color()));
+        System.out.print(BoardRenderer.draw(session.getGame().getBoard(), session.color(), null, null));
     }
 
     private void handleNotification(NotificationMessage notificationMessage){
